@@ -1838,7 +1838,8 @@
             padding: 0 60px;
         }
 
-        .premium-basmala-text::before, .premium-basmala-text::after {
+        .premium-basmala-text::before,
+        .premium-basmala-text::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -1893,10 +1894,55 @@
         .premium-quran-text {
             color: #f8f8f8;
             font-family: 'Amiri', serif;
-            font-size: 2.3rem;
+            font-size: 2rem;
             line-height: 3;
-            text-align: center;
-            padding: 20px 10px;
+            text-align: justify;
+            text-align-last: center;
+            text-justify: distribute;
+            padding: 20px 20px;
+            direction: rtl;
+            word-spacing: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .premium-quran-text .ayah-span {
+            display: inline;
+        }
+
+        .ayah-marker-rub {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            min-height: 40px;
+            width: 40px;
+            height: 40px;
+            margin: 0 6px;
+            vertical-align: middle;
+            transform: translateY(-3px);
+            position: relative;
+            cursor: default;
+        }
+
+        .ayah-marker-rub::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23D4AF37' d='M50 0 L65 35 L100 50 L65 65 L50 100 L35 65 L0 50 L35 35 Z' opacity='0.9'/><circle cx='50' cy='50' r='30' fill='none' stroke='%23D4AF37' stroke-width='2' opacity='0.4'/></svg>");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .ayah-marker-rub span {
+            position: relative;
+            z-index: 1;
+            color: #fff !important;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-shadow: none;
+            filter: none;
         }
 
         .premium-read-nav {
@@ -1935,6 +1981,333 @@
 
         .premium-nav-btn:active {
             transform: scale(0.97);
+        }
+
+        /* ========== NEW MUSHAF DESIGN ========== */
+        #p-read {
+            padding: 0 5px 100px;
+        }
+
+        .mushaf-select-wrap {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .mushaf-select-wrap select {
+            width: 100%;
+            height: 52px;
+            border-radius: 16px;
+            background: rgba(10, 14, 22, 0.97);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #d4af37;
+            padding: 0 18px;
+            font-family: 'Cairo';
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .mushaf-select-wrap select option {
+            background: #0e1520;
+            color: #d4af37;
+        }
+
+        .mushaf-select-arrow {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(212, 175, 55, 0.6);
+            pointer-events: none;
+        }
+
+        .mushaf-toolbar {
+            display: flex;
+            background: rgba(10, 14, 22, 0.97);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .mushaf-toolbar-btn {
+            flex: 1;
+            padding: 13px 4px;
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(212, 175, 55, 0.1);
+            color: rgba(212, 175, 55, 0.65);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mushaf-toolbar-btn:first-child {
+            border-left: none;
+        }
+
+        .mushaf-toolbar-btn:hover,
+        .mushaf-toolbar-btn.active-btn {
+            background: rgba(212, 175, 55, 0.12);
+            color: #d4af37;
+        }
+
+        .mushaf-search-wrap {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .mushaf-search-wrap input {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(10, 14, 22, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            color: rgba(212, 175, 55, 0.85);
+            padding: 0 42px 0 15px;
+            font-family: 'Cairo';
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .mushaf-search-wrap input:focus {
+            border-color: rgba(212, 175, 55, 0.45);
+        }
+
+        .mushaf-search-wrap input::placeholder {
+            color: rgba(212, 175, 55, 0.3);
+        }
+
+        .mushaf-search-icon {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(212, 175, 55, 0.4);
+            pointer-events: none;
+        }
+
+        /* --- Mushaf Page (صفحة المصحف) --- */
+        .mushaf-page {
+            background: #0d1119;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(212, 175, 55, 0.2),
+                0 0 0 4px rgba(0, 0, 0, 0.7),
+                0 0 0 5px rgba(212, 175, 55, 0.08),
+                0 20px 50px rgba(0, 0, 0, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .mushaf-top-border,
+        .mushaf-bottom-border {
+            height: 5px;
+            background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.25) 20%, #c8a84b 50%, rgba(212, 175, 55, 0.25) 80%, transparent 100%);
+        }
+
+        .mushaf-inner {
+            padding: 20px 12px 25px;
+        }
+
+        /* Surah Name Header */
+        .mushaf-surah-header {
+            text-align: center;
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .mushaf-surah-header::before,
+        .mushaf-surah-header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 90px);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.35));
+            transform: translateY(-50%);
+        }
+
+        .mushaf-surah-header::before {
+            left: 0;
+        }
+
+        .mushaf-surah-header::after {
+            right: 0;
+            background: linear-gradient(-90deg, transparent, rgba(212, 175, 55, 0.35));
+        }
+
+        .mushaf-surah-name {
+            display: inline-block;
+            font-family: 'Amiri', serif;
+            font-size: 1.4rem;
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.4);
+            border-radius: 8px;
+            padding: 8px 22px;
+            background: rgba(201, 168, 76, 0.06);
+            letter-spacing: 0.5px;
+        }
+
+        .mushaf-meta {
+            display: block;
+            font-family: 'Cairo';
+            font-size: 0.75rem;
+            color: rgba(212, 175, 55, 0.45);
+            margin-top: 6px;
+        }
+
+        /* Basmala */
+        .mushaf-basmala {
+            text-align: center;
+            padding: 15px 10px;
+            margin-bottom: 15px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .mushaf-basmala-text {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.7rem, 6.5vw, 2.5rem);
+            color: #c9a84c;
+            text-shadow: 0 0 30px rgba(201, 168, 76, 0.15);
+        }
+
+        /* Main Quran text area */
+        .mushaf-text {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            line-height: 2.9;
+            text-align: justify;
+            text-align-last: center;
+            color: #e8dcc8;
+            direction: rtl;
+            padding: 5px 8px 15px;
+            word-spacing: 5px;
+        }
+
+        /* Verse number badge */
+        .verse-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            margin: 0 3px;
+            vertical-align: middle;
+            border-radius: 50%;
+            border: 1.5px solid rgba(201, 168, 76, 0.6);
+            background: rgba(201, 168, 76, 0.1);
+            color: #c9a84c;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 700;
+            transform: translateY(-3px);
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .ayah-span {
+            display: inline;
+        }
+
+        .ayah-span:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-radius: 4px;
+        }
+
+        .ayah-span.selected-ayah {
+            background: rgba(212, 175, 55, 0.12) !important;
+            border-radius: 6px;
+        }
+
+        /* Mushaf Nav buttons */
+        .mushaf-nav {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .mushaf-nav-btn {
+            flex: 1;
+            background: rgba(10, 14, 22, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            color: #c9a84c;
+            padding: 13px 8px;
+            font-family: 'Cairo';
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .mushaf-nav-btn:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: #c9a84c;
+        }
+
+        .mushaf-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Tafseer override for new design */
+        .mushaf-text .tafseer-box {
+            background: rgba(212, 175, 55, 0.04);
+            border-right: 3px solid rgba(212, 175, 55, 0.35);
+            border-radius: 0 10px 10px 0;
+            padding: 14px 14px 14px 10px;
+            margin-bottom: 15px;
+        }
+
+        .mushaf-text .tafseer-ayah {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            color: #c9a84c;
+            line-height: 2.2;
+            margin-bottom: 10px;
+        }
+
+        .mushaf-text .tafseer-text {
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem;
+            color: rgba(232, 220, 200, 0.65);
+            line-height: 1.8;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: right;
+        }
+
+        /* Reading mode */
+        body.reading-mode .mushaf-select-wrap,
+        body.reading-mode .mushaf-toolbar,
+        body.reading-mode .mushaf-search-wrap,
+        body.reading-mode #quran-search-results {
+            display: none !important;
+        }
+
+        body.reading-mode .mushaf-page {
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+        }
+
+        body.reading-mode #p-read {
+            padding: 0;
         }
     </style>
 </head>
@@ -2360,77 +2733,82 @@
             <div style="height:100px;"></div>
         </div>
         <div id="p-read" class="page">
-            <div class="card" style="padding:15px;">
-                <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;" id="read-header-container">
-                    <select id="surah-select-read" onchange="loadSurahText(this.value)"
-                        style="flex:1; height:46px; border-radius:12px; background:rgba(30,30,30,0.8); border:1px solid rgba(255,255,255,0.15); color:var(--text-main); padding:0 12px; font-family:'Cairo'; font-size:0.95rem;"></select>
-                    <div id="juz-title-read"
-                        style="display:none; flex:1; height:46px; border-radius:12px; background:rgba(30,30,30,0.8); border:1px solid var(--primary); color:var(--primary); padding:0 12px; font-family:'Cairo'; font-size:1.1rem; line-height:46px; text-align:center; font-weight:bold;">
-                        الجزء الأول
-                    </div>
-                </div>
-                <div style="display:flex; gap:7px; margin-bottom:12px;">
-                    <button onclick="changeFontSize(2)" title="تكبير الخط"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-plus"></i></button>
-                    <button onclick="changeFontSize(-2)" title="تصغير الخط"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-minus"></i></button>
-                    <button id="btn-tafseer" onclick="toggleTafseer()" title="التفسير"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-book-open"></i></button>
-                    <button onclick="saveBookmark()" title="حفظ علامة"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-bookmark"></i></button>
-                    <button onclick="toggleReadingMode()" title="ملء الشاشة"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-expand"></i></button>
-                    <button onclick="shareSurah()" title="مشاركة السورة"
-                        style="flex:1; padding:10px 4px; border-radius:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); cursor:pointer;"><i
-                            class="fas fa-share-alt"></i></button>
-                </div>
-                <div style="position:relative; margin-bottom:10px;">
-                    <input type="text" id="quran-search" placeholder="ابحث في القرآن الكريم..." onkeyup="searchQuran()"
-                        style="width:100%; padding:10px 40px 10px 40px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-main); font-family:'Cairo'; font-size:0.9rem; box-sizing:border-box;">
-                    <i class="fas fa-search"
-                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-sec); pointer-events:none;"></i>
-                    <i class="fas fa-times" id="clear-quran-search" onclick="clearQuranSearch()"
-                        style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-sec); cursor:pointer; display:none;"></i>
-                </div>
-                <div id="quran-search-results"
-                    style="display:none; margin-bottom:10px; max-height:220px; overflow-y:auto; border-radius:12px; background:var(--bg-card); border:1px solid rgba(255,255,255,0.1);">
-                </div>
-                <div id="surah-info-bar" style="display:none;"></div>
-                <div style="border-top:1px solid rgba(255,255,255,0.08); margin:8px 0;"></div>
+            <!-- Surah selector & search -->
+            <div class="mushaf-select-wrap">
+                <select id="surah-select-read" onchange="loadSurahText(this.value)"></select>
+                <div id="juz-title-read"
+                    style="display:none; position:absolute; top:0; left:0; right:0; height:50px; border-radius:14px; background:rgba(12,18,28,0.95); border:1px solid rgba(212,175,55,0.35); color:#d4af37; font-family:'Cairo'; font-size:1rem; font-weight:bold; line-height:50px; text-align:center;">
+                    الجزء الأول</div>
+                <i class="fas fa-chevron-down mushaf-select-arrow"></i>
+            </div>
 
-                <div class="quran-premium-wrapper">
-                    <div id="surah-info-premium" class="surah-header-premium" style="display:none;">
-                        <div class="title">
-                            <span style="color:#d4af37; font-size:1.4rem;">◈</span>
-                            <span id="surah-title-text"></span>
-                            <span style="color:#d4af37; font-size:1.4rem;">◈</span>
+            <!-- Toolbar -->
+            <div class="mushaf-toolbar">
+                <button class="mushaf-toolbar-btn" onclick="changeFontSize(2)" title="تكبير">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="mushaf-toolbar-btn" onclick="changeFontSize(-2)" title="تصغير">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="mushaf-toolbar-btn" id="btn-tafseer" onclick="toggleTafseer()" title="تفسير">
+                    <i class="fas fa-book-open"></i>
+                </button>
+                <button class="mushaf-toolbar-btn" onclick="saveBookmark()" title="علامة">
+                    <i class="fas fa-bookmark"></i>
+                </button>
+                <button class="mushaf-toolbar-btn" onclick="toggleReadingMode()" title="ملء الشاشة">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="mushaf-toolbar-btn" onclick="shareSurah()" title="مشاركة">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="mushaf-search-wrap">
+                <input type="text" id="quran-search" placeholder="ابحث في القرآن الكريم..." onkeyup="searchQuran()">
+                <i class="fas fa-search mushaf-search-icon"></i>
+                <i class="fas fa-times" id="clear-quran-search" onclick="clearQuranSearch()"
+                    style="position:absolute; left:13px; top:50%; transform:translateY(-50%); color:rgba(212,175,55,0.5); cursor:pointer; display:none;"></i>
+            </div>
+
+            <!-- Search Results -->
+            <div id="quran-search-results"
+                style="display:none; margin-bottom:10px; max-height:220px; overflow-y:auto; border-radius:12px; background:rgba(12,18,28,0.95); border:1px solid rgba(212,175,55,0.2);">
+            </div>
+            <div id="surah-info-bar" style="display:none;"></div>
+
+            <!-- Mushaf Page -->
+            <div class="mushaf-page">
+                <div class="mushaf-top-border"></div>
+                <div class="mushaf-inner">
+                    <!-- Surah Header -->
+                    <div id="surah-info-premium" class="mushaf-surah-header" style="display:none;">
+                        <div class="mushaf-surah-name" id="surah-title-text"></div>
+                        <span class="mushaf-meta" id="surah-meta-text"></span>
+                    </div>
+
+                    <!-- Quran Content -->
+                    <div id="quran-content" class="mushaf-text" style="min-height:60vh;">
+                        <div style="text-align:center; padding:60px 20px; color:rgba(212,175,55,0.4);">
+                            <i class="fas fa-quran" style="font-size:4rem; display:block; margin-bottom:20px;"></i>
+                            <p style="font-family:'Cairo'; font-size:1rem;">اختر سورة من القائمة للبدء في القراءة</p>
                         </div>
                     </div>
 
-                    <div id="quran-content" class="quran-text"
-                        style="min-height:60vh; border:none; background:transparent; padding:0;">
-                        <div style="text-align:center; padding:40px 20px; color:var(--text-sec);">
-                            <i class="fas fa-quran"
-                                style="font-size:3rem; color:var(--primary); margin-bottom:15px; display:block;"></i>
-                            <p>اختر سورة من القائمة للبدء في القراءة</p>
-                        </div>
-                    </div>
-
-                    <div class="premium-read-nav">
-                        <button onclick="changeSurahRead(1)" class="premium-nav-btn">
+                    <!-- Navigation -->
+                    <div class="mushaf-nav">
+                        <button onclick="changeSurahRead(1)" class="mushaf-nav-btn">
                             السورة التالية <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button onclick="changeSurahRead(-1)" class="premium-nav-btn">
+                        <button onclick="changeSurahRead(-1)" class="mushaf-nav-btn">
                             <i class="fas fa-chevron-right"></i> السورة السابقة
                         </button>
                     </div>
                 </div>
+                <div class="mushaf-bottom-border"></div>
             </div>
+
             <button id="btn-exit-reading" onclick="toggleReadingMode()"
                 style="position:fixed; bottom:80px; left:50%; transform:translateX(-50%); width:auto; padding:10px 25px; background:rgba(0,0,0,0.85); z-index:2000; display:none; border-radius:25px; border:1px solid var(--primary); color:var(--primary); cursor:pointer; font-family:'Cairo';">
                 <i class="fas fa-compress"></i> خروج من وضع القراءة
@@ -4405,96 +4783,82 @@
         function renderSurah(ayahs, num, tafseer = null, scrollToAyah = null) {
             const box = document.getElementById('quran-content');
 
+            // Apply new mushaf text class
+            box.className = 'mushaf-text';
+
             // Restore saved font size
             const savedSize = localStorage.getItem('quran_font_size');
             if (savedSize) box.style.fontSize = savedSize + 'rem';
 
-            // Update Premium Header
+            // Update surah header
             const header = document.getElementById('surah-info-premium');
             const titleText = document.getElementById('surah-title-text');
+            const metaText = document.getElementById('surah-meta-text');
             if (header && titleText) {
                 header.style.display = 'block';
                 const meta = surahMeta[num - 1] || { t: '', a: '' };
                 const sType = meta.t === 'مكية' || meta.t === 'مدنية' ? meta.t : (meta.t === 'Meccan' ? 'مكية' : 'مدنية');
-                titleText.innerHTML = `سورة ${surahNames[num - 1] || ''} | ${ayahs.length} آية | ${sType}`;
+                titleText.textContent = `سورة ${surahNames[num - 1] || ''}`;
+                if (metaText) metaText.textContent = `${sType} ● ${ayahs.length} آية`;
             }
 
-            // Tafseer Mode remains the same but with premium fonts
+            // --- Tafseer Mode ---
             if (tafseer) {
-                let html = `<div style="padding-bottom:20px;">`;
+                let html = `<div style="padding-bottom:15px;">`;
                 ayahs.forEach((a, index) => {
                     const tafseerText = tafseer[index] ? tafseer[index].text : '...';
                     const isSelected = scrollToAyah == a.numberInSurah ? 'selected-ayah' : '';
+                    const vNum = a.numberInSurah.toLocaleString('ar-EG');
                     html += `
-                        <div class="tafseer-box ${isSelected}" id="ayah-${a.numberInSurah}" data-ayah="${encodeURIComponent(a.text)}" ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))" style="background:#0b111a; border-right-color:#d4af37;">
-                            <div class="tafseer-ayah" style="color:#d4af37">${a.text} <span class="ayah-marker-rub" style="width:30px; height:30px; font-size:0.7rem">${a.numberInSurah}</span></div>
-                            <div class="tafseer-text" style="color:rgba(255,255,255,0.7)">
-                                <i class="fas fa-book-open" style="color:#d4af37; margin-left:5px; font-size:0.8rem;"></i>
+                        <div class="tafseer-box ${isSelected}" id="ayah-${a.numberInSurah}" data-ayah="${encodeURIComponent(a.text)}" ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))">
+                            <div class="tafseer-ayah">${a.text} <span class="verse-num">${vNum}</span></div>
+                            <div class="tafseer-text">
+                                <i class="fas fa-book-open" style="color:#c9a84c; margin-left:5px; font-size:0.8rem;"></i>
                                 ${tafseerText}
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 box.innerHTML = html + `</div>`;
-                // Load Bookmark Indicator
-                const bmk = JSON.parse(localStorage.getItem('bookmark'));
-                if (bmk && bmk.surah == num) {
-                    const el = document.getElementById(`ayah-${bmk.ayah}`);
-                    if (el && !el.querySelector('.bookmark-indicator')) {
-                        // The bookmark indicator for tafseer mode is not explicitly changed in the provided snippet.
-                        // Keeping the old behavior for now, or it might be handled by the new styling.
-                        // For consistency with the new normal mode, we might want to update this too.
-                        // For now, I'll assume the new styling for tafseer-box itself is sufficient.
-                    }
+                if (scrollToAyah) {
+                    setTimeout(() => {
+                        const el = document.getElementById(`ayah-${scrollToAyah}`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
                 }
                 return;
             }
 
-            // Normal Mode - Premium Classic Design
+            // --- Normal Mode (New Mushaf Design) ---
             let html = '';
 
-            // Basmala Header
+            // Basmala
             if (num != 1 && num != 9) {
-                html += `
-                    <div class="premium-basmala-container">
-                        <div class="premium-basmala-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                    </div>`;
+                html += `<div class="mushaf-basmala"><div class="mushaf-basmala-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div></div>`;
             }
 
-            // Ayahs rendering
-            let fullTextHtml = '<div class="premium-quran-text">';
+            // Render Ayahs as flowing inline text with circle verse numbers
+            let textHtml = '';
             ayahs.forEach((a, index) => {
                 let text = a.text;
                 if (index === 0 && num != 1 && num != 9) {
-                    text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
-                    if (text.startsWith("بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ")) text = text.replace("بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ", "").trim();
+                    text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
+                    text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
                 }
-
                 const isSelected = scrollToAyah == a.numberInSurah ? 'selected-ayah' : '';
-                fullTextHtml += `
-                    <span class="ayah-span ${isSelected}" id="ayah-${a.numberInSurah}" 
-                          data-ayah="${encodeURIComponent(a.text)}" 
-                          ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))"
-                          style="cursor:pointer; display:inline;">
-                        <span style="color:#fff">${text}</span> <span class="ayah-marker-rub">${a.numberInSurah}</span>
-                    </span>`;
+                const vNum = a.numberInSurah.toLocaleString('ar-EG');
+                textHtml += `<span class="ayah-span ${isSelected}" id="ayah-${a.numberInSurah}" data-ayah="${encodeURIComponent(a.text)}" ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))" style="cursor:pointer;">${text}<span class="verse-num">${vNum}</span>‌ </span>`;
             });
-            fullTextHtml += '</div>';
 
-            box.innerHTML = html + fullTextHtml;
+            box.innerHTML = html + textHtml;
 
-            // Load Bookmark Indicator
+            // Bookmark highlight
             const bmk = JSON.parse(localStorage.getItem('bookmark'));
             if (bmk && bmk.surah == num) {
                 const el = document.getElementById(`ayah-${bmk.ayah}`);
-                if (el) {
-                    el.style.color = '#d4af37';
-                    el.style.background = 'rgba(212, 175, 55, 0.1)';
-                    el.style.borderRadius = '10px';
-                }
+                if (el) { el.style.background = 'rgba(201,168,76,0.12)'; el.style.borderRadius = '6px'; }
             }
 
-            // Scroll to saved Ayah
+            // Scroll to ayah
             if (scrollToAyah) {
                 setTimeout(() => {
                     const el = document.getElementById(`ayah-${scrollToAyah}`);
@@ -4962,6 +5326,9 @@
                 let dailyDhikr = parseInt(localStorage.getItem('daily_dhikr') || '0');
                 localStorage.setItem('daily_dhikr', dailyDhikr + 1);
 
+                // Update home daily achievement counter live (from real data)
+                if (typeof updateHomeDhikrCounter === 'function') updateHomeDhikrCounter();
+
                 // Save progress
                 saveAzkarProgress(idx, curr);
             }
@@ -5051,6 +5418,9 @@
             localStorage.setItem('total_dhikr', totalDhikr + 1);
             localStorage.setItem('daily_dhikr', dailyDhikr + 1);
             localStorage.setItem('total_dhikr_count', totalDhikrCount + 1);
+
+            // Update home daily achievement counter live (from real data)
+            if (typeof updateHomeDhikrCounter === 'function') updateHomeDhikrCounter();
 
             // Enhanced animation
             const ring = document.querySelector('.dhikr-ring');
@@ -7421,6 +7791,40 @@
         try { initStories(); } catch (e) { console.error("Error initStories", e); }
         try { loadDhikrStats(); } catch (e) { console.error("Error loadDhikrStats", e); }
         // updateDhikrDisplay merged into loadDhikrStats
+
+        // ---- REAL Daily Achievement Counter ----
+        function calcTodayDhikr() {
+            const today = new Date().toDateString();
+            let total = 0;
+
+            // 1) Count from dhikr_v2 (السبحة/التسبيح)
+            try {
+                const dhikrData = JSON.parse(localStorage.getItem('dhikr_v2')) || {};
+                for (const key in dhikrData) {
+                    const hist = dhikrData[key].history || {};
+                    total += (hist[today] || 0);
+                }
+            } catch (e) { }
+
+            // 2) Count from azkar_progress (أذكار الصباح والمساء)
+            try {
+                const azkarProg = JSON.parse(localStorage.getItem('azkar_progress')) || {};
+                const todayAzkar = azkarProg[today] || {};
+                for (const k in todayAzkar) {
+                    total += (todayAzkar[k] || 0);
+                }
+            } catch (e) { }
+
+            return total;
+        }
+
+        function updateHomeDhikrCounter() {
+            const el = document.getElementById('home-daily-dhikr');
+            if (el) el.innerText = calcTodayDhikr();
+        }
+
+        try { updateHomeDhikrCounter(); } catch (e) { }
+
         try { initImsakiya(); } catch (e) { console.error("Error initImsakiya", e); }
         try { initHadith(); } catch (e) { console.error("Error initHadith", e); }
         try { renderNames(); } catch (e) { console.error("Error renderNames", e); }
