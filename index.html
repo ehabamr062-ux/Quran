@@ -2624,22 +2624,58 @@
                     </div>
                 </div>
 
-                <div style="display:flex; gap:10px;">
-                    <div onclick="showKhatmaModal('prayer')"
-                        style="flex:1; background:rgba(16,185,129,0.1); padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(16,185,129,0.2); cursor:pointer;">
+                <!-- Prayer target + attention arrow -->
+                <div style="display:flex; gap:10px; position:relative; margin-top:42px;">
+
+                    <!-- Animated attention arrow -->
+                    <div id="khatma-arrow-hint" style="
+                        position:absolute;
+                        top:-38px; right:calc(25% - 12px);
+                        display:flex; flex-direction:column; align-items:center;
+                        gap:2px; pointer-events:none; z-index:5;
+                    ">
+                        <span
+                            style="font-size:0.7rem; color:#d4af37; font-family:'Cairo'; font-weight:bold; white-space:nowrap; text-shadow:0 0 8px rgba(212,175,55,0.5);">اضغط
+                            هنا</span>
+                        <i class="fas fa-chevron-down" style="
+                            color:#d4af37;
+                            font-size:1.1rem;
+                            animation: arrowBounce 0.9s ease-in-out infinite;
+                            text-shadow:0 0 10px rgba(212,175,55,0.7);
+                        "></i>
+                        <i class="fas fa-chevron-down" style="
+                            color:rgba(212,175,55,0.4);
+                            font-size:0.9rem;
+                            margin-top:-8px;
+                            animation: arrowBounce 0.9s ease-in-out infinite 0.15s;
+                        "></i>
+                    </div>
+
+                    <div onclick="showKhatmaModal('prayer'); document.getElementById('khatma-arrow-hint').style.display='none';"
+                        style="flex:1; background:rgba(16,185,129,0.12); padding:12px 10px; border-radius:12px; text-align:center;
+                               border:1.5px solid rgba(212,175,55,0.4); cursor:pointer;
+                               box-shadow:0 0 15px rgba(212,175,55,0.12);
+                               animation: khatmaPulse 2s ease-in-out infinite;
+                               position:relative; overflow:hidden;">
+                        <!-- Shine sweep -->
+                        <div style="position:absolute;top:0;left:-100%;width:60%;height:100%;
+                            background:linear-gradient(90deg,transparent,rgba(212,175,55,0.15),transparent);
+                            animation:shineSweep 2.5s ease-in-out infinite;
+                            pointer-events:none;"></div>
                         <div style="font-size:0.75rem; color:var(--text-sec);">بعد كل صلاة</div>
                         <div id="pages-per-prayer"
-                            style="font-size:1.4rem; font-weight:bold; color:var(--text-main); font-family:'Cairo'; margin-top:2px;">
+                            style="font-size:1.5rem; font-weight:bold; color:#d4af37; font-family:'Cairo'; margin-top:2px;">
                             4</div>
-                        <div style="font-size:0.7rem; color:var(--accent);">صفحات</div>
+                        <div style="font-size:0.7rem; color:#10B981;">صفحات 📖</div>
                     </div>
+
                     <div onclick="showKhatmaModal('daily')"
-                        style="flex:1; background:rgba(16,185,129,0.1); padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(16,185,129,0.2); cursor:pointer;">
+                        style="flex:1; background:rgba(16,185,129,0.1); padding:12px 10px; border-radius:12px; text-align:center; border:1px solid rgba(16,185,129,0.2); cursor:pointer;">
                         <div style="font-size:0.75rem; color:var(--text-sec);">المجموع اليومي</div>
                         <div id="pages-per-day"
-                            style="font-size:1.4rem; font-weight:bold; color:var(--text-main); font-family:'Cairo'; margin-top:2px;">
+                            style="font-size:1.5rem; font-weight:bold; color:var(--text-main); font-family:'Cairo'; margin-top:2px;">
                             20</div>
-                        <div style="font-size:0.7rem; color:var(--accent);">صفحة</div>
+                        <div style="font-size:0.7rem; color:var(--accent);">صفحة 📅</div>
                     </div>
                 </div>
             </div>
@@ -3581,7 +3617,44 @@
                     <input type="file" id="restore-input" accept=".json" style="display:none"
                         onchange="restoreData(this)">
                 </div>
+
+                <!-- Push Notifications Card -->
+                <div class="card"
+                    style="border:1px solid rgba(212,175,55,0.3); background:rgba(212,175,55,0.03); margin-top:10px;">
+                    <div class="settings-header"><i class="fas fa-bell"></i> الإشعارات الفورية (Push)</div>
+                    <p style="font-size:0.85rem; color:var(--text-sec); line-height:1.6; margin-bottom:15px;">
+                        استقبل إشعارات دينية وتذكيرات مباشرة على شاشتك حتى لو التطبيق مغلق 📲
+                    </p>
+
+                    <div id="notif-status-bar"
+                        style="padding:10px 14px; border-radius:10px; margin-bottom:12px; font-size:0.85rem; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                        <i class="fas fa-circle" id="notif-status-icon" style="font-size:0.6rem; color:#888;"></i>
+                        <span id="notif-status-text">جارٍ التحقق من حالة الإشعارات...</span>
+                    </div>
+
+                    <button onclick="requestNotifyPermission()" id="btn-enable-notif"
+                        style="background:linear-gradient(135deg,#d4af37,#b8860b); color:#000; font-weight:bold; font-size:0.95rem; margin-bottom:10px;">
+                        <i class="fas fa-bell"></i> تفعيل الإشعارات
+                    </button>
+
+                    <div class="fcm-token-box" style="display:none;">
+                        <label style="font-size:0.8rem; color:var(--text-sec);">FCM Token (للاختبار):</label>
+                        <div style="display:flex; gap:8px; margin-top:5px;">
+                            <input type="text" id="fcm-token-display" readonly
+                                style="flex:1; font-size:0.7rem; padding:8px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-sec);">
+                            <button
+                                onclick="navigator.clipboard.writeText(document.getElementById('fcm-token-display').value).then(()=>showToast('تم نسخ الـ Token ✓'))"
+                                style="width:auto; padding:8px 12px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:var(--primary); font-size:0.9rem;">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-sec); margin-top:8px; line-height:1.5;">
+                            💡 انسخ هذا الـ Token واستخدمه في Firebase Console أو API لإرسال إشعار تجريبي
+                        </p>
+                    </div>
+                </div>
             </div>
+
 
             <!-- Tab 4: About -->
             <div id="tab-content-about" class="settings-content">
@@ -5938,9 +6011,231 @@
             localStorage.setItem('playback_speed', speed);
         }
 
+        // Update notification status in settings UI
+        function updateNotifyStatusUI() {
+            const icon = document.getElementById('notif-status-icon');
+            const text = document.getElementById('notif-status-text');
+            const btn = document.getElementById('btn-enable-notif');
+            if (!icon || !text) return;
+
+            if (!('Notification' in window)) {
+                icon.style.color = '#ef4444';
+                text.textContent = 'متصفحك لا يدعم الإشعارات';
+                if (btn) btn.style.display = 'none';
+                return;
+            }
+
+            const perm = Notification.permission;
+            if (perm === 'granted') {
+                icon.style.color = '#22c55e';
+                text.textContent = 'الإشعارات مفعّلة ✅';
+                if (btn) btn.style.display = 'none';
+                // Show token if exists
+                const token = localStorage.getItem('fcm_token');
+                const tokenInput = document.getElementById('fcm-token-display');
+                if (token && tokenInput) {
+                    tokenInput.value = token;
+                    tokenInput.closest('.fcm-token-box')?.setAttribute('style', 'display:block');
+                }
+            } else if (perm === 'denied') {
+                icon.style.color = '#ef4444';
+                text.textContent = 'الإشعارات محظورة ❌ — فعّلها من إعدادات المتصفح';
+                if (btn) btn.innerHTML = '<i class="fas fa-cog"></i> كيفية تفعيلها';
+            } else {
+                icon.style.color = '#f59e0b';
+                text.textContent = 'الإشعارات غير مفعّلة — اضغط للتفعيل';
+            }
+        }
+
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║          🔔 نظام الإشعارات المحلية (بدون Firebase)          ║
+        // ╚══════════════════════════════════════════════════════════════╝
+
+        const Notifier = {
+            sw: null,   // Service Worker registration
+
+            // ── تهيئة النظام ──────────────────────────────────────────
+            async init() {
+                if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+                try {
+                    this.sw = await navigator.serviceWorker.ready;
+                    // ابدأ الـ checker كل دقيقة
+                    setInterval(() => this.checkAlarms(), 60000);
+                    // Periodic Background Sync (حد تتيح)
+                    if ('periodicSync' in this.sw) {
+                        try {
+                            await this.sw.periodicSync.register('check-alarms', { minInterval: 60000 });
+                        } catch { }
+                    }
+                } catch (e) { console.warn('[Notifier] init error:', e); }
+            },
+
+            // ── طلب الإذن ──────────────────────────────────────────────
+            async requestPermission() {
+                if (Notification.permission === 'granted') return true;
+                const result = await Notification.requestPermission();
+                updateNotifyStatusUI();
+                return result === 'granted';
+            },
+
+            // ── جدولة إشعار ────────────────────────────────────────────
+            async schedule(id, title, body, fireAt, opts = {}) {
+                if (!this.sw) return;
+                const alarm = {
+                    id, title, body, fireAt,
+                    icon: opts.icon || '/icon-192.png',
+                    url: opts.url || '/',
+                    requireInteraction: opts.important || false
+                };
+                this.sw.active?.postMessage({ type: 'SCHEDULE_ALARM', payload: alarm });
+                // Also use setTimeout as fallback (works while app is open)
+                const delay = fireAt - Date.now();
+                if (delay > 0 && delay < 8 * 60 * 60 * 1000) {
+                    setTimeout(() => {
+                        if (Notification.permission === 'granted') {
+                            navigator.serviceWorker.ready.then(sw =>
+                                sw.active?.postMessage({ type: 'SHOW_NOW', payload: { title, body, ...opts } })
+                            );
+                        }
+                    }, delay);
+                }
+            },
+
+            // ── إشعار فوري ─────────────────────────────────────────────
+            async showNow(title, body, opts = {}) {
+                if (Notification.permission !== 'granted') return;
+                if (!this.sw?.active) return;
+                this.sw.active.postMessage({ type: 'SHOW_NOW', payload: { title, body, ...opts } });
+            },
+
+            // ── إلغاء إشعار ────────────────────────────────────────────
+            async cancel(id) {
+                this.sw?.active?.postMessage({ type: 'CANCEL_ALARM', payload: { id } });
+            },
+
+            // ── تشغيل الفحص ────────────────────────────────────────────
+            checkAlarms() {
+                this.sw?.active?.postMessage({ type: 'CHECK_ALARMS' });
+            },
+
+            // ── جدولة إشعارات الصلاة ───────────────────────────────────
+            async schedulePrayerNotifications() {
+                if (Notification.permission !== 'granted') return;
+                if (!App.prayerTimes) return;
+
+                const prayers = [
+                    { key: 'Fajr', name: '🌙 أذان الفجر', emoji: '🌙' },
+                    { key: 'Dhuhr', name: '☀️ أذان الظهر', emoji: '☀️' },
+                    { key: 'Asr', name: '🌤️ أذان العصر', emoji: '🌤️' },
+                    { key: 'Maghrib', name: '🌅 أذان المغرب', emoji: '🌅' },
+                    { key: 'Isha', name: '🌃 أذان العشاء', emoji: '🌃' }
+                ];
+
+                const preNotify = localStorage.getItem('pre_notify') !== 'false';
+                const today = new Date();
+
+                for (const p of prayers) {
+                    const timeStr = App.prayerTimes[p.key];
+                    if (!timeStr) continue;
+
+                    const [h, m] = timeStr.split(':').map(Number);
+                    const fireTime = new Date(today);
+                    fireTime.setHours(h, m, 0, 0);
+
+                    if (fireTime <= Date.now()) continue;
+
+                    // إشعار وقت الصلاة
+                    await this.schedule(
+                        `prayer_${p.key}`,
+                        p.name,
+                        `حان الآن وقت ${p.name.replace(/[🌙☀️🌤️🌅🌃]/g, '').trim()} — حيّ على الصلاة`,
+                        fireTime.getTime(),
+                        { url: '/#home', important: true }
+                    );
+
+                    // إشعار قبل الصلاة بـ 15 دقيقة
+                    if (preNotify) {
+                        const preTime = new Date(fireTime.getTime() - 15 * 60000);
+                        if (preTime > Date.now()) {
+                            await this.schedule(
+                                `pre_${p.key}`,
+                                `⏰ تنبيه — ${p.name}`,
+                                `بعد 15 دقيقة ${p.name.replace(/[🌙☀️🌤️🌅🌃]/g, '').trim()} — استعد للصلاة`,
+                                preTime.getTime(),
+                                { url: '/#home' }
+                            );
+                        }
+                    }
+                }
+
+                console.log('[Notifier] تم جدولة إشعارات الصلاة ✅');
+            },
+
+            // ── جدولة أذكار الصباح والمساء ─────────────────────────────
+            async scheduleDailyReminders() {
+                if (Notification.permission !== 'granted') return;
+
+                const now = new Date();
+                const today = new Date();
+
+                // أذكار الصباح — 7:00 ص
+                const morning = new Date(today);
+                morning.setHours(7, 0, 0, 0);
+                if (morning > now) {
+                    await this.schedule('azkar_morning', '🌄 أذكار الصباح', 'ابدأ يومك بذكر الله — "ومن يتوكل على الله فهو حسبه"', morning.getTime(), { url: '/#azkar' });
+                }
+
+                // أذكار المساء — 5:00 م
+                const evening = new Date(today);
+                evening.setHours(17, 0, 0, 0);
+                if (evening > now) {
+                    await this.schedule('azkar_evening', '🌆 أذكار المساء', 'لا تنسَ أذكار المساء — أحصن ليلتك بذكر الله', evening.getTime(), { url: '/#azkar' });
+                }
+
+                // تذكير قرآن — 9:00 م
+                const quran = new Date(today);
+                quran.setHours(21, 0, 0, 0);
+                if (quran > now) {
+                    await this.schedule('quran_daily', '📖 وردك اليومي', 'لا تنسَ قراءة القرآن الكريم اليوم', quran.getTime(), { url: '/#read' });
+                }
+
+                // تسبيح قبل النوم — 10:30 م
+                const sleep = new Date(today);
+                sleep.setHours(22, 30, 0, 0);
+                if (sleep > now) {
+                    await this.schedule('sleep_azkar', '😴 أذكار النوم', 'احرص على أذكار النوم قبل أن تخلد للراحة', sleep.getTime(), { url: '/#azkar' });
+                }
+
+                console.log('[Notifier] تم جدولة التذكيرات اليومية ✅');
+            },
+
+            // ── تشغيل كل الجدولة ────────────────────────────────────────
+            async scheduleAll() {
+                await this.schedulePrayerNotifications();
+                await this.scheduleDailyReminders();
+                showToast('تم جدولة الإشعارات ليومنا هذا ✅', 3000);
+            }
+        };
+
+        // تهيئة عند تحميل التطبيق
+        async function initNotifier() {
+            await Notifier.init();
+            if (Notification.permission === 'granted') {
+                // أعد الجدولة كل يوم عند فتح التطبيق
+                const lastScheduled = localStorage.getItem('notif_scheduled_date');
+                const today = new Date().toDateString();
+                if (lastScheduled !== today) {
+                    await Notifier.scheduleAll();
+                    localStorage.setItem('notif_scheduled_date', today);
+                }
+            }
+        }
+
         // Load audio settings on startup
+
         function loadAudioSettings() {
             // Reciter
+
             const savedReciter = localStorage.getItem('audio_reciter');
             if (savedReciter) {
                 const settingsSelect = document.getElementById('reciter-select-settings');
@@ -7950,6 +8245,8 @@
 
         try { initHijriCalendar(); } catch (e) { console.error("Error initHijriCalendar", e); }
         try { loadAudioSettings(); } catch (e) { console.error("Error loadAudioSettings", e); }
+        try { updateNotifyStatusUI(); } catch (e) { }
+        try { initNotifier(); } catch (e) { console.error("Error initNotifier", e); }
 
         // Initialize Audio Unlock events
         document.body.addEventListener('touchstart', unlockAudio, { once: true });
@@ -8660,7 +8957,133 @@
             });
         }
     </script>
-</body>
 
+    <!-- ====================================================== -->
+    <!-- Firebase Push Notifications                             -->
+    <!-- استبدل القيم أدناه بقيمك من Firebase Console          -->
+    <!-- ====================================================== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+
+    <script>
+        // Firebase Config — استبدل هذه القيم بقيمك
+        const FIREBASE_CONFIG = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // مفتاح VAPID من Firebase Console
+        const VAPID_KEY = "YOUR_VAPID_KEY";
+
+        let firebaseMessaging = null;
+
+        function initFirebaseNotifications() {
+            if (location.protocol === 'file:') {
+                console.info('[Notify] يعمل محلياً — الإشعارات تحتاج HTTPS');
+                return;
+            }
+            if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+                console.warn('[Notify] لم يتم تعيين إعدادات Firebase');
+                return;
+            }
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+                firebaseMessaging = firebase.messaging();
+                navigator.serviceWorker.register('/firebase-messaging-sw.js').then(reg => {
+                    try { firebaseMessaging.useServiceWorker(reg); } catch (e) { }
+                    requestNotifyPermission();
+                }).catch(err => console.error('[Notify] SW Error:', err));
+
+                firebaseMessaging.onMessage((payload) => {
+                    const title = payload.notification?.title || 'تطبيق النور';
+                    const body = payload.notification?.body || '';
+                    showInAppNotification(title, body, payload.data?.link);
+                });
+            } catch (err) { console.error('[Notify]', err); }
+        }
+
+        async function requestNotifyPermission() {
+            if (!('Notification' in window)) {
+                showToast('متصفحك لا يدعم الإشعارات', 3000);
+                return;
+            }
+            const granted = await Notifier.requestPermission();
+            if (granted) {
+                showToast('✅ تم تفعيل الإشعارات!', 3000);
+                await Notifier.scheduleAll();
+                localStorage.setItem('notif_scheduled_date', new Date().toDateString());
+                // Show test notification after 3s
+                setTimeout(() => Notifier.showNow('🔔 تطبيق النور', 'الإشعارات تعمل الآن بنجاح! ستصلك تنبيهات الصلاة والأذكار يومياً 🌙', { url: '/' }), 3000);
+            } else {
+                showToast('❌ تم رفض الإشعارات — يمكن تفعيلها من إعدادات المتصفح', 4000);
+            }
+        }
+
+        async function getFCMToken() {
+            if (!firebaseMessaging) return;
+            try {
+                const token = await firebaseMessaging.getToken({ vapidKey: VAPID_KEY });
+                if (token) {
+                    console.log('[Notify] Token:', token);
+                    localStorage.setItem('fcm_token', token);
+                    const el = document.getElementById('fcm-token-display');
+                    if (el) { el.value = token; el.closest('.fcm-token-box')?.setAttribute('style', 'display:block'); }
+                }
+            } catch (err) { console.error('[Notify] Token Error:', err); }
+        }
+
+        function showInAppNotification(title, body, link) {
+            const box = document.createElement('div');
+            box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;justify-content:center;padding-top:15px;pointer-events:none;';
+            box.innerHTML = `<div onclick="this.parentElement.remove()${link ? ';window.location.href=\'' + link + '\'' : ''}" style="
+            max-width:340px;width:90%;pointer-events:auto;cursor:pointer;
+            background:linear-gradient(135deg,#0e1520,#1a2535);
+            border:1px solid rgba(212,175,55,0.6);border-radius:16px;
+            padding:15px 18px;box-shadow:0 8px 30px rgba(0,0,0,0.7);
+            display:flex;gap:12px;align-items:flex-start;direction:rtl;
+            font-family:'Cairo',sans-serif;animation:notifSlide .4s ease;
+        ">
+            <i class="fas fa-bell" style="color:#d4af37;font-size:1.3rem;margin-top:3px;"></i>
+            <div style="flex:1">
+                <div style="color:#d4af37;font-weight:bold;font-size:0.97rem;margin-bottom:4px;">${title}</div>
+                <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.6;">${body}</div>
+            </div>
+            <i class="fas fa-times" style="color:rgba(255,255,255,0.3);font-size:0.9rem;margin-top:3px;"></i>
+        </div>`;
+            document.body.appendChild(box);
+            setTimeout(() => { box.style.opacity = '0'; box.style.transition = 'opacity .4s'; setTimeout(() => box.remove(), 400); }, 6000);
+        }
+
+        // اضف CSS لـ animation
+        const notifStyle = document.createElement('style');
+        notifStyle.textContent = `
+            @keyframes notifSlide {
+                from { transform:translateY(-80px); opacity:0; }
+                to   { transform:translateY(0);     opacity:1; }
+            }
+            @keyframes arrowBounce {
+                0%,100% { transform:translateY(0);   opacity:1; }
+                50%      { transform:translateY(6px); opacity:0.6; }
+            }
+            @keyframes khatmaPulse {
+                0%,100% { box-shadow: 0 0 10px rgba(212,175,55,0.15), 0 0 0 0   rgba(212,175,55,0.25); }
+                50%      { box-shadow: 0 0 22px rgba(212,175,55,0.35), 0 0 0 5px rgba(212,175,55,0);  }
+            }
+            @keyframes shineSweep {
+                0%   { left:-100%; }
+                50%,100% { left:150%; }
+            }
+        `;
+        document.head.appendChild(notifStyle);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initFirebaseNotifications, 2500);
+        });
+    </script>
+
+</body>
 
 </html>
