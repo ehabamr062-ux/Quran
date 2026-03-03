@@ -3492,6 +3492,56 @@
                         onchange="handleAdhanUpload(this)">
                     <button class="secondary" id="btn-test-adhan" onclick="testAdhan()" style="margin-top:5px;"><i
                             class="fas fa-play"></i> اختبار صوت الأذان</button>
+
+                    <!-- Quran Reciter Section -->
+                    <div style="margin-top:20px; padding-top:15px; border-top:1px solid rgba(255,255,255,0.08);">
+                        <div class="settings-header" style="margin-bottom:12px; border:none; padding:0;">
+                            <i class="fas fa-quran"></i> صوت تلاوة القرآن
+                        </div>
+                        <label style="font-size:0.85rem; color:var(--text-sec);">اختر القارئ</label>
+                        <select id="reciter-select-settings" onchange="changeReciterFromSettings(this.value)"
+                            style="margin-bottom:10px; background:var(--bg-card); color:var(--primary); padding:10px; border-radius:10px; border:1px solid var(--primary); font-family:'Cairo';">
+                            <optgroup label="القراء المشهورون">
+                                <option value="https://server8.mp3quran.net/afs/">مشاري راشد العفاسي</option>
+                                <option value="https://server6.mp3quran.net/abdul_basit/">عبدالباسط عبدالصمد</option>
+                                <option value="https://server13.mp3quran.net/husr/">محمود خليل الحصري</option>
+                                <option value="https://server11.mp3quran.net/sds/">عبدالرحمن السديس</option>
+                                <option value="https://server7.mp3quran.net/shur/">سعود الشريم</option>
+                                <option value="https://server10.mp3quran.net/minsh/">محمد صديق المنشاوي</option>
+                                <option value="https://server8.mp3quran.net/frs_a/">فارس عباد</option>
+                                <option value="https://server6.mp3quran.net/abkr/">إدريس أبكر</option>
+                                <option value="https://server10.mp3quran.net/jleel/">خالد الجليل</option>
+                                <option value="https://server11.mp3quran.net/hazza/">هزاع البلوشي</option>
+                            </optgroup>
+                        </select>
+
+                        <div class="settings-row" style="margin-top:8px;">
+                            <div>
+                                <div style="font-weight:bold;">التشغيل التلقائي للسورة التالية</div>
+                                <small style="color:var(--text-sec)">انتقال تلقائي للسورة بعد انتهاء التلاوة</small>
+                            </div>
+                            <input type="checkbox" id="auto-next-toggle" checked onchange="toggleAutoNext()"
+                                style="width:auto; transform:scale(1.5);">
+                        </div>
+
+                        <div class="settings-row" style="margin-top:8px;">
+                            <div>
+                                <div style="font-weight:bold;">تكرار السورة</div>
+                                <small style="color:var(--text-sec)">تكرار الاستماع للسورة نفسها</small>
+                            </div>
+                            <input type="checkbox" id="repeat-surah-toggle" onchange="toggleRepeatSurah()"
+                                style="width:auto; transform:scale(1.5);">
+                        </div>
+
+                        <label style="font-size:0.85rem; color:var(--text-sec); margin-top:10px; display:block;">سرعة
+                            التلاوة</label>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <input type="range" id="playback-speed" min="0.5" max="2" step="0.25" value="1"
+                                oninput="changePlaybackSpeed(this.value)" style="flex:1;">
+                            <span id="speed-label"
+                                style="color:var(--primary); font-family:'Cairo'; font-weight:bold; min-width:35px; text-align:center;">×1</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -5849,10 +5899,73 @@
         // Change adhan voice
         function changeAdhanVoice(url) {
             localStorage.setItem('adhan_voice', url);
-            // إيقاف أي صوت حالي عند التغيير
             const adhanAudio = document.getElementById('adhan-audio');
             adhanAudio.pause();
             adhanAudio.currentTime = 0;
+        }
+
+        // Change reciter from settings page
+        function changeReciterFromSettings(url) {
+            localStorage.setItem('audio_reciter', url);
+            // Also sync with reciter-select in the audio/listen page if exists
+            const reciterSelect = document.getElementById('reciter-select');
+            if (reciterSelect) reciterSelect.value = url;
+            showToast('تم تغيير القارئ بنجاح ✓');
+        }
+
+        // Toggle auto-play next surah
+        function toggleAutoNext() {
+            const enabled = document.getElementById('auto-next-toggle').checked;
+            localStorage.setItem('auto_next_surah', enabled ? 'true' : 'false');
+            App.autoNext = enabled;
+        }
+
+        // Toggle repeat surah
+        function toggleRepeatSurah() {
+            const enabled = document.getElementById('repeat-surah-toggle').checked;
+            localStorage.setItem('repeat_surah', enabled ? 'true' : 'false');
+            const mainAudio = document.getElementById('main-audio');
+            if (mainAudio) mainAudio.loop = enabled;
+        }
+
+        // Change playback speed
+        function changePlaybackSpeed(val) {
+            const speed = parseFloat(val);
+            const label = document.getElementById('speed-label');
+            if (label) label.textContent = '×' + speed;
+            const mainAudio = document.getElementById('main-audio');
+            if (mainAudio) mainAudio.playbackRate = speed;
+            localStorage.setItem('playback_speed', speed);
+        }
+
+        // Load audio settings on startup
+        function loadAudioSettings() {
+            // Reciter
+            const savedReciter = localStorage.getItem('audio_reciter');
+            if (savedReciter) {
+                const settingsSelect = document.getElementById('reciter-select-settings');
+                if (settingsSelect) settingsSelect.value = savedReciter;
+            }
+            // Auto next
+            const autoNext = localStorage.getItem('auto_next_surah');
+            if (autoNext === 'false') {
+                const toggle = document.getElementById('auto-next-toggle');
+                if (toggle) toggle.checked = false;
+            }
+            // Repeat
+            const repeat = localStorage.getItem('repeat_surah');
+            if (repeat === 'true') {
+                const toggle = document.getElementById('repeat-surah-toggle');
+                if (toggle) toggle.checked = true;
+            }
+            // Playback speed
+            const speed = parseFloat(localStorage.getItem('playback_speed') || '1');
+            const speedSlider = document.getElementById('playback-speed');
+            const speedLabel = document.getElementById('speed-label');
+            if (speedSlider) speedSlider.value = speed;
+            if (speedLabel) speedLabel.textContent = '×' + speed;
+            const mainAudio = document.getElementById('main-audio');
+            if (mainAudio) mainAudio.playbackRate = speed;
         }
 
         // Handle Custom Adhan Upload
@@ -7836,6 +7949,7 @@
         try { initGreetingCard(); } catch (e) { console.error("initGreetingCard error:", e); }
 
         try { initHijriCalendar(); } catch (e) { console.error("Error initHijriCalendar", e); }
+        try { loadAudioSettings(); } catch (e) { console.error("Error loadAudioSettings", e); }
 
         // Initialize Audio Unlock events
         document.body.addEventListener('touchstart', unlockAudio, { once: true });
