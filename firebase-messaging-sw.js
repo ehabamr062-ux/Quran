@@ -8,12 +8,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-com
 
 // 🔥 استبدل هذه القيم بقيم مشروعك من Firebase Console
 firebase.initializeApp({
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyAYn_oxYFaN8Rz7J_CrjWpCL5nCPPpa69s",
+  authDomain: "quran-app-ea45d.firebaseapp.com",
+  projectId: "quran-app-ea45d",
+  storageBucket: "quran-app-ea45d.firebasestorage.app",
+  messagingSenderId: "1010593301120",
+  appId: "1:1010593301120:web:d32d22d817eba744bf1c65",
+  measurementId: "G-SKR6MX0ELT"
 });
 
 const messaging = firebase.messaging();
@@ -25,9 +26,9 @@ messaging.onBackgroundMessage((payload) => {
   console.log('[SW] رسالة في الخلفية:', payload);
 
   const title = payload.notification?.title || 'تطبيق النور 🌙';
-  const body  = payload.notification?.body  || 'لديك رسالة جديدة';
-  const icon  = payload.notification?.image || '/icon-192.png';
-  const link  = payload.data?.link || '/';
+  const body = payload.notification?.body || 'لديك رسالة جديدة';
+  const icon = payload.notification?.image || '/icon-192.png';
+  const link = payload.data?.link || '/';
 
   const options = {
     body,
@@ -38,7 +39,7 @@ messaging.onBackgroundMessage((payload) => {
     lang: 'ar',
     data: { url: link },
     actions: [
-      { action: 'open',    title: 'فتح التطبيق' },
+      { action: 'open', title: 'فتح التطبيق' },
       { action: 'dismiss', title: 'إغلاق' }
     ]
   };
