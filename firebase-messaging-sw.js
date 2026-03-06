@@ -53,21 +53,31 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'dismiss') return;
 
-  const url = event.notification.data?.url || '/';
+  // تحديد الرابط: إذا كان هناك رابط مخصص في البيانات نستخدمه، وإلا نستخدم أصل الموقع
+  let targetUrl = event.notification.data?.url || event.notification.data?.link || '/';
+
+  // تحويل الرابط النسبي إلى رابط مطلق لضمان عدم حدوث 404
+  if (targetUrl.startsWith('/')) {
+    targetUrl = new URL(targetUrl, self.location.origin).href;
+  }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // إذا كانت نافذة مفتوحة بالفعل، ركّز عليها
+      // البحث عن نافذة مفتوحة بالفعل تابعة للتطبيق
       for (const client of clientList) {
-        if ('focus' in client) {
-          client.focus();
-          client.navigate(url);
-          return;
+        // نتحقق مما إذا كان العميل (النافذة) موجود في نفس الأصل (Origin)
+        if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+          // إذا كان الرابط المطلوب مختلف عن الرابط الحالي، نقوم بالتنقل إليه
+          if (client.url !== targetUrl) {
+            client.navigate(targetUrl);
+          }
+          return client.focus();
         }
       }
-      // افتح نافذة جديدة
+
+      // إذا لم تكن هناك نافذة مفتوحة، نفتح واحدة جديدة
       if (clients.openWindow) {
-        return clients.openWindow(url);
+        return clients.openWindow(targetUrl);
       }
     })
   );

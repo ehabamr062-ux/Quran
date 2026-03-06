@@ -52,19 +52,25 @@ self.addEventListener('fetch', (e) => {
 // ─── Notification Click Handler ────────────────────────────
 self.addEventListener('notificationclick', (e) => {
     e.notification.close();
-    const url = e.notification.data?.url || '/';
+
+    // تحديد الرابط وتحويله لرابط مطلق لضمان العمل على GitHub Pages
+    let targetUrl = e.notification.data?.url || '/';
+    if (targetUrl.startsWith('/')) {
+        targetUrl = new URL(targetUrl, self.location.origin).href;
+    }
 
     e.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-            // إذا في نافذة مفتوحة، ركّز عليها
+            // البحث عن نافذة مفتوحة بالفعل في نفس الموقع
             for (const client of list) {
-                if ('focus' in client) {
+                if (client.url.startsWith(self.location.origin) && 'focus' in client) {
                     client.focus();
-                    if (url !== '/') client.navigate(url);
+                    if (client.url !== targetUrl) client.navigate(targetUrl);
                     return;
                 }
             }
-            if (clients.openWindow) clients.openWindow(url);
+            // إذا لم يتم العثور على نافذة، يتم فتح واحدة جديدة
+            if (clients.openWindow) return clients.openWindow(targetUrl);
         })
     );
 });
