@@ -237,7 +237,8 @@ const App = {
     countdownInterval: null,
     keepAliveInterval: null,
     hijriAdj: 0,
-    imsakiyaDate: new Date()
+    imsakiyaDate: new Date(),
+    imsakiyaHijriYear: null
 };
 
 function initQuiz() {
@@ -245,9 +246,10 @@ function initQuiz() {
 }
 
 const recitersList = [
+    { name: "خالد الجليل", url: "https://server10.mp3quran.net/jleel/" },
     { name: "مشاري العفاسي", url: "https://server8.mp3quran.net/afs/" },
-    { name: "عبدالباسط عبدالصمد (مجود)", url: "https://server7.mp3quran.net/basit/" },
-    { name: "عبدالباسط عبدالصمد (مرتل)", url: "https://server7.mp3quran.net/basit/Almusshaf-Al-Morttal/" },
+    { name: "عبدالباسط عبدالصمد (مجود)", url: "https://server11.mp3quran.net/basit_mojawad/" },
+    { name: "عبدالباسط عبدالصمد (مرتل)", url: "https://server7.mp3quran.net/basit/" },
     { name: "ماهر المعيقلي", url: "https://server12.mp3quran.net/maher/" },
     { name: "سعد الغامدي", url: "https://server7.mp3quran.net/s_gmd/" },
     { name: "أحمد العجمي", url: "https://server10.mp3quran.net/ajm/" },
@@ -258,7 +260,6 @@ const recitersList = [
     { name: "محمد صديق المنشاوي", url: "https://server10.mp3quran.net/minsh/" },
     { name: "فارس عباد", url: "https://server8.mp3quran.net/frs_a/" },
     { name: "إدريس أبكر", url: "https://server6.mp3quran.net/abkr/" },
-    { name: "خالد الجليل", url: "https://server10.mp3quran.net/jleel/" },
     { name: "هزاع البلوشي", url: "https://server11.mp3quran.net/hazza/" },
     { name: "وديع اليمني", url: "https://server7.mp3quran.net/wadi/" }
 ];
@@ -314,6 +315,9 @@ function initLists() {
             rSelect.value = b;
             loadSurahText(b);
         }
+    } else if (rSelect) {
+        rSelect.value = "1";
+        loadSurahText("1");
     }
 }
 
@@ -613,8 +617,8 @@ function initStories() {
 }
 
 function initApp() {
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'night';
+    // Load saved theme (Defaults to royal_blue Royal Blue at user request)
+    const savedTheme = localStorage.getItem('theme') || 'royal_blue';
     changeTheme(savedTheme);
     document.getElementById('theme-select').value = savedTheme;
     renderThemeSelector();
@@ -674,6 +678,8 @@ function initApp() {
     initWallpapers();
     renderNames();
     loadDhikrStats();
+    updateGamification();
+    updateHomeDhikrCounter();
 
     // Audio Listeners
     App.audio.ontimeupdate = updateProgress;
@@ -681,8 +687,8 @@ function initApp() {
     App.audio.onplay = () => updatePlayIcon(true);
     App.audio.onpause = () => updatePlayIcon(false);
 
-    // Show redirect prompt
-    setTimeout(showRedirectPrompt, 1500);
+    // Show redirect prompt (Disabled at user request to start directly on home page)
+    // setTimeout(showRedirectPrompt, 1500);
 
     // Always open on home page
     navTo('home', false);
@@ -872,7 +878,7 @@ function navTo(id, pushHistory = true) {
     if (id === 'imsakiya') loadImsakiya();
     if (id === 'settings') {
         checkPromoVisibility();
-        setTimeout(showSettingsAnnouncement, 500);
+        // showSettingsAnnouncement is disabled to prevent annoying interstitial countdowns
     }
 
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -893,6 +899,14 @@ function navTo(id, pushHistory = true) {
 
     if (pushHistory) {
         history.pushState({ page: id }, null, `#${id}`);
+    }
+}
+
+function goBack() {
+    if (history.state && history.state.page && history.state.page !== 'home') {
+        history.back();
+    } else {
+        navTo('home');
     }
 }
 
@@ -1152,7 +1166,10 @@ function startCountdown(timings) {
         if (minDiff <= 900000 && minDiff > 899000) {
             const preEnabled = localStorage.getItem('pre_notify') !== 'false';
             if (preEnabled && Notification.permission === 'granted') {
-                new Notification(`اقترب وقت صلاة ${ar[next]} (بقي 15 دقيقة)`);
+                new Notification(`تطبيق النور — اقترب وقت صلاة ${ar[next]} (بقي 15 دقيقة)`, {
+                    icon: 'app_icon_1782665380376.png',
+                    badge: 'app_icon_1782665380376.png'
+                });
             }
         }
     }, 1000);
@@ -1225,9 +1242,10 @@ function playAdhan(prayerKey, prayerName) {
 
     if (Notification.permission === 'granted') {
         try {
-            const notif = new Notification("حان وقت الصلاة", {
+            const notif = new Notification("تطبيق النور — حان وقت الصلاة", {
                 body: `حان الآن موعد صلاة ${prayerName}`,
-                icon: 'https://cdn-icons-png.flaticon.com/512/5146/5146011.png',
+                icon: 'app_icon_1782665380376.png',
+                badge: 'app_icon_1782665380376.png',
                 requireInteraction: true
             });
             notif.onclick = function () { window.focus(); notif.close(); };
@@ -1252,6 +1270,7 @@ function manualPlayAdhan() {
 function togglePlay() {
     const vinyl = document.querySelector('.vinyl-record');
     const wave = document.getElementById('playing-animation');
+    const glow = document.querySelector('.vinyl-glow-ring');
 
     if (App.audio.paused) {
         if (!App.audio.src) updatePlayerSource();
@@ -1259,11 +1278,13 @@ function togglePlay() {
         if (vinyl) vinyl.classList.add('spinning');
         if (wave) wave.style.opacity = '1';
         if (wave) wave.classList.add('pulse');
+        if (glow) { glow.style.opacity = '0.35'; glow.classList.add('spinning'); }
     } else {
         App.audio.pause();
         if (vinyl) vinyl.classList.remove('spinning');
         if (wave) wave.style.opacity = '0';
         if (wave) wave.classList.remove('pulse');
+        if (glow) { glow.style.opacity = '0'; glow.classList.remove('spinning'); }
     }
 }
 
@@ -1278,13 +1299,16 @@ function updatePlayIcon(playing) {
     // Sync animation state with actual playing state
     const vinyl = document.querySelector('.vinyl-record');
     const wave = document.getElementById('playing-animation');
+    const glow = document.querySelector('.vinyl-glow-ring');
 
     if (playing) {
         if (vinyl) vinyl.classList.add('spinning');
         if (wave) { wave.style.opacity = '1'; wave.classList.add('pulse'); }
+        if (glow) { glow.style.opacity = '0.35'; glow.classList.add('spinning'); }
     } else {
         if (vinyl) vinyl.classList.remove('spinning');
         if (wave) { wave.style.opacity = '0'; wave.classList.remove('pulse'); }
+        if (glow) { glow.style.opacity = '0'; glow.classList.remove('spinning'); }
     }
 }
 
@@ -1409,6 +1433,10 @@ function testCurrentReciter() {
         alert(`❌ تعذر الوصول إلى القارئ ${reciterName}.`);
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> اختبار القارئ'; }
     };
+}
+
+function testReciter() {
+    testCurrentReciter();
 }
 
 // Enhanced audio player with better error recovery
@@ -1598,9 +1626,10 @@ function clickZikr(idx, target) {
 
             // Show completion message
             if (Notification.permission === 'granted') {
-                new Notification('أحسنت! 🎉', {
+                new Notification('تطبيق النور — أحسنت! 🎉', {
                     body: 'تم إكمال الذكر بنجاح',
-                    icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNENEFGMzciLz4KPHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI2IiB5PSI2Ij4KPHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI2IiB5PSI2Ij4KPC9zdmc+Cjwvc3ZnPgo='
+                    icon: 'app_icon_1782665380376.png',
+                    badge: 'app_icon_1782665380376.png'
                 });
             }
         }
@@ -1693,6 +1722,9 @@ function incrementDhikr() {
     App.dhikr[type].total++;
     App.dhikr[type].history[today]++;
 
+    // Save to localStorage immediately so subsequent functions read fresh data
+    localStorage.setItem('dhikr_v2', JSON.stringify(App.dhikr));
+
     // Update global stats
     let totalDhikr = parseInt(localStorage.getItem('total_dhikr') || '0');
     let dailyDhikr = parseInt(localStorage.getItem('daily_dhikr') || '0');
@@ -1725,7 +1757,6 @@ function incrementDhikr() {
         showEncouragement();
     }
 
-    localStorage.setItem('dhikr_v2', JSON.stringify(App.dhikr));
     loadDhikrStats();
 }
 
@@ -1953,9 +1984,10 @@ function showEncouragement() {
 
     const message = encouragements[Math.floor(Math.random() * encouragements.length)];
     if (Notification.permission === 'granted') {
-        new Notification('تهانينا! 🎉', {
+        new Notification('تطبيق النور — تهانينا! 🎉', {
             body: message,
-            icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNEQ0FGMzciLz4KPC9zdmc+Cg=='
+            icon: 'app_icon_1782665380376.png',
+            badge: 'app_icon_1782665380376.png'
         });
     }
 }
@@ -2020,9 +2052,113 @@ function showCustomDhikrList() {
 
     container.innerHTML = customDhikr.map((dhikr, index) => `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:5px;">
-            <span style="font-size:0.8rem;">${dhikr.text}</span>
-            <button onclick="removeCustomDhikr(${index})" style="background:#f44336; padding:4px 8px; font-size:0.7rem;"><i class="fas fa-trash"></i></button>
+            <span style="font-size:0.8rem; flex: 1; text-align: right; margin-left: 10px;">${dhikr.text}</span>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="editCustomDhikr(${index})" style="background:var(--primary); color:#000; padding:4px 8px; font-size:0.7rem; border:none; border-radius:4px; cursor:pointer;"><i class="fas fa-edit"></i></button>
+                <button onclick="removeCustomDhikr(${index})" style="background:#f44336; color:#fff; padding:4px 8px; font-size:0.7rem; border:none; border-radius:4px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+            </div>
         </div>`).join('');
+}
+
+function editCustomDhikr(index) {
+    const customDhikr = JSON.parse(localStorage.getItem('custom_dhikr')) || [];
+    const dhikr = customDhikr[index];
+    if (!dhikr) return;
+
+    // Create Modal Element
+    const modal = document.createElement('div');
+    modal.id = 'edit-dhikr-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.7); z-index: 15000; 
+        display: flex; justify-content: center; align-items: center; 
+        backdrop-filter: blur(5px); animation: fadeIn 0.25s;
+    `;
+
+    modal.innerHTML = `
+        <div class="card" style="
+            width: 90%; 
+            max-width: 400px; 
+            padding: 25px; 
+            border: 1px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        ">
+            <h3 style="color:var(--primary); font-family:'Cairo'; margin-bottom:15px; font-size:1.25rem;">تعديل الذكر المخصص</h3>
+            <textarea id="edit-dhikr-input" style="
+                width: 100%; 
+                height: 80px; 
+                background: rgba(0,0,0,0.3); 
+                border: 1px solid rgba(255,255,255,0.1); 
+                border-radius: 8px; 
+                color: #fff; 
+                padding: 10px; 
+                font-family: 'Cairo', sans-serif;
+                font-size: 0.95rem; 
+                resize: none; 
+                margin-bottom: 20px;
+                text-align: right;
+            ">${dhikr.text}</textarea>
+            
+            <div style="display:flex; gap:10px;">
+                <button id="save-edit-dhikr-btn" style="
+                    flex: 1; 
+                    background: var(--primary); 
+                    color: #000; 
+                    border: none; 
+                    padding: 10px; 
+                    border-radius: 8px; 
+                    font-weight: bold; 
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                ">حفظ التعديل</button>
+                <button id="cancel-edit-dhikr-btn" style="
+                    flex: 1; 
+                    background: rgba(255,255,255,0.1); 
+                    color: #fff; 
+                    border: 1px solid rgba(255,255,255,0.2); 
+                    padding: 10px; 
+                    border-radius: 8px; 
+                    font-weight: bold; 
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                ">إلغاء</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Cancel action
+    modal.querySelector('#cancel-edit-dhikr-btn').onclick = () => {
+        modal.remove();
+    };
+
+    // Save action
+    modal.querySelector('#save-edit-dhikr-btn').onclick = () => {
+        const inputVal = modal.querySelector('#edit-dhikr-input').value.trim();
+        if (!inputVal) {
+            alert("لا يمكن أن يكون نص الذكر فارغاً");
+            return;
+        }
+
+        // Update text
+        dhikr.text = inputVal;
+        localStorage.setItem('custom_dhikr', JSON.stringify(customDhikr));
+
+        // Update in dropdown
+        const select = document.getElementById('dhikr-type');
+        if (select) {
+            const option = select.querySelector(`option[value="${dhikr.type}"]`);
+            if (option) option.textContent = inputVal;
+        }
+
+        showCustomDhikrList();
+        loadDhikrStats();
+        modal.remove();
+        alert('تم تعديل الذكر بنجاح! ✏️');
+    };
 }
 
 function removeCustomDhikr(index) {
@@ -2100,7 +2236,7 @@ async function toggleWakeLock() {
                 }
             }).catch(e => {
                 console.log("Silent play waiting for interaction");
-                alert("لتفعيل العمل في الخلفية، يرجى الضغط في أي مكان في الصفحة");
+                // Alert removed at user request to avoid startup interruption
             });
         }
 
@@ -2254,7 +2390,8 @@ const Notifier = {
         if (!this.sw) return;
         const alarm = {
             id, title, body, fireAt,
-            icon: opts.icon || '/icon-192.png',
+            icon: opts.icon || 'app_icon_1782665380376.png',
+            badge: 'app_icon_1782665380376.png',
             url: opts.url || '/',
             requireInteraction: opts.important || false
         };
@@ -2265,7 +2402,7 @@ const Notifier = {
             setTimeout(() => {
                 if (Notification.permission === 'granted') {
                     navigator.serviceWorker.ready.then(sw =>
-                        sw.active?.postMessage({ type: 'SHOW_NOW', payload: { title, body, ...opts } })
+                        sw.active?.postMessage({ type: 'SHOW_NOW', payload: { title: 'تطبيق النور — ' + title, body, icon: 'app_icon_1782665380376.png', badge: 'app_icon_1782665380376.png', ...opts } })
                     );
                 }
             }, delay);
@@ -3101,7 +3238,7 @@ function renderThemeSelector() {
     const grid = document.getElementById('theme-grid-visual');
     if (!grid) return;
 
-    const currentTheme = localStorage.getItem('theme') || 'night';
+    const currentTheme = localStorage.getItem('theme') || 'royal_blue';
 
     grid.innerHTML = '';
     themesList.forEach(t => {
@@ -3160,6 +3297,13 @@ function changeTheme(t) {
         App.chart.data.datasets[0].backgroundColor = getComputedStyle(document.body).getPropertyValue('--primary');
         App.chart.update();
     }
+}
+
+function toggleQuickTheme() {
+    const current = localStorage.getItem('theme') || 'royal_blue';
+    const nextTheme = (current === 'royal_blue') ? 'oled_gold' : 'royal_blue';
+    changeTheme(nextTheme);
+    showToast('تم تغيير المظهر بنجاح! 🎨', 2000);
 }
 
 function changeFontSize(delta) {
@@ -3571,6 +3715,64 @@ function openJuz(index) {
     loadJuzText(index + 1);
 }
 
+function getJuzAyahsOffline(juzNum) {
+    const juzMapping = [
+        { startS: 1, startA: 1, endS: 2, endA: 141 }, // Juz 1
+        { startS: 2, startA: 142, endS: 2, endA: 252 }, // Juz 2
+        { startS: 2, startA: 253, endS: 3, endA: 92 }, // Juz 3
+        { startS: 3, startA: 93, endS: 4, endA: 23 }, // Juz 4
+        { startS: 4, startA: 24, endS: 4, endA: 147 }, // Juz 5
+        { startS: 4, startA: 148, endS: 5, endA: 81 }, // Juz 6
+        { startS: 5, startA: 82, endS: 6, endA: 110 }, // Juz 7
+        { startS: 6, startA: 111, endS: 7, endA: 87 }, // Juz 8
+        { startS: 7, startA: 88, endS: 8, endA: 40 }, // Juz 9
+        { startS: 8, startA: 41, endS: 9, endA: 92 }, // Juz 10
+        { startS: 9, startA: 93, endS: 10, endA: 109 }, // Juz 11
+        { startS: 11, startA: 1, endS: 12, endA: 52 }, // Juz 12
+        { startS: 12, startA: 53, endS: 14, endA: 52 }, // Juz 13
+        { startS: 15, startA: 1, endS: 16, endA: 128 }, // Juz 14
+        { startS: 17, startA: 1, endS: 18, endA: 74 }, // Juz 15
+        { startS: 18, startA: 75, endS: 20, endA: 135 }, // Juz 16
+        { startS: 21, startA: 1, endS: 22, endA: 78 }, // Juz 17
+        { startS: 23, startA: 1, endS: 25, endA: 20 }, // Juz 18
+        { startS: 25, startA: 21, endS: 27, endA: 55 }, // Juz 19
+        { startS: 27, startA: 56, endS: 29, endA: 45 }, // Juz 20
+        { startS: 29, startA: 46, endS: 33, endA: 30 }, // Juz 21
+        { startS: 33, startA: 31, endS: 36, endA: 27 }, // Juz 22
+        { startS: 36, startA: 28, endS: 39, endA: 31 }, // Juz 23
+        { startS: 39, startA: 32, endS: 41, endA: 46 }, // Juz 24
+        { startS: 41, startA: 47, endS: 45, endA: 37 }, // Juz 25
+        { startS: 46, startA: 1, endS: 51, endA: 30 }, // Juz 26
+        { startS: 51, startA: 31, endS: 57, endA: 29 }, // Juz 27
+        { startS: 58, startA: 1, endS: 66, endA: 12 }, // Juz 28
+        { startS: 67, startA: 1, endS: 77, endA: 50 }, // Juz 29
+        { startS: 78, startA: 1, endS: 114, endA: 6 }  // Juz 30
+    ];
+
+    const map = juzMapping[juzNum - 1];
+    const ayahs = [];
+
+    for (let s = map.startS; s <= map.endS; s++) {
+        const surah = QURAN_DATA[s];
+        if (!surah) continue;
+        
+        const startIdx = (s === map.startS) ? map.startA - 1 : 0;
+        const endIdx = (s === map.endS) ? map.endA - 1 : surah.ayahs.length - 1;
+
+        for (let a = startIdx; a <= endIdx; a++) {
+            ayahs.push({
+                text: surah.ayahs[a],
+                numberInSurah: a + 1,
+                surah: {
+                    number: s,
+                    name: surah.name
+                }
+            });
+        }
+    }
+    return ayahs;
+}
+
 async function loadJuzText(juzNum) {
     document.getElementById('surah-select-read').style.display = 'none';
     const juzTitle = document.getElementById('juz-title-read');
@@ -3582,15 +3784,19 @@ async function loadJuzText(juzNum) {
 
     try {
         let ayahs;
-        const cacheKey = `juz_text_${juzNum}`;
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            ayahs = JSON.parse(cached);
+        if (typeof QURAN_DATA !== 'undefined') {
+            ayahs = getJuzAyahsOffline(juzNum);
         } else {
-            const res = await fetch(`https://api.alquran.cloud/v1/juz/${juzNum}/quran-uthmani`);
-            const data = await res.json();
-            ayahs = data.data.ayahs;
-            try { localStorage.setItem(cacheKey, JSON.stringify(ayahs)); } catch (e) { }
+            const cacheKey = `juz_text_${juzNum}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                ayahs = JSON.parse(cached);
+            } else {
+                const res = await fetch(`https://api.alquran.cloud/v1/juz/${juzNum}/quran-uthmani`);
+                const data = await res.json();
+                ayahs = data.data.ayahs;
+                try { localStorage.setItem(cacheKey, JSON.stringify(ayahs)); } catch (e) { }
+            }
         }
 
         const surahInfoBar = document.getElementById('surah-info-bar');
@@ -3662,29 +3868,42 @@ async function initImsakiya() {
     const mName = document.getElementById('imsakiya-month-name');
     if (!tbody) return;
 
-    mName.innerText = "رمضان 1447 هـ | 2026 م";
-    tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;">جاري تحميل إمساكية شهر رمضان المبارك...<br><i class="fas fa-spinner fa-spin" style="margin-top:10px; color:var(--primary);"></i></td></tr>';
+    if (!App.imsakiyaHijriYear || isNaN(App.imsakiyaHijriYear)) {
+        try {
+            // Get current Hijri year using moment-hijri
+            const now = moment().add(App.hijriAdj, 'days');
+            const parsedYear = parseInt(now.format('iYYYY'));
+            if (isNaN(parsedYear) || parsedYear < 1300 || parsedYear > 1600) {
+                App.imsakiyaHijriYear = 1447; // Fallback for 2026
+            } else {
+                App.imsakiyaHijriYear = parsedYear;
+            }
+        } catch (e) {
+            console.warn("Moment-hijri not ready or error parsing year, using fallback", e);
+            App.imsakiyaHijriYear = 1447; // Fallback
+        }
+    }
 
-    const startDate = new Date(2026, 1, 19);
+    mName.innerText = `رمضان ${App.imsakiyaHijriYear} هـ | جاري التحميل...`;
+    tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;">جاري تحميل إمساكية شهر رمضان المبارك...<br><i class="fas fa-spinner fa-spin" style="margin-top:10px; color:var(--primary);"></i></td></tr>';
+
     const lat = App.location.lat || 30.0444;
     const lng = App.location.lng || 31.2357;
     const method = App.calcMethod || 5;
 
+    const apiUrl = `https://api.aladhan.com/v1/hijriCalendar/${App.imsakiyaHijriYear}/9?latitude=${lat}&longitude=${lng}&method=${method}`;
+    console.log("Fetching Imsakiya from URL:", apiUrl);
+
     try {
-        const [res1, res2] = await Promise.all([
-            fetch(`https://api.aladhan.com/v1/calendar?latitude=${lat}&longitude=${lng}&method=${method}&month=2&year=2026`),
-            fetch(`https://api.aladhan.com/v1/calendar?latitude=${lat}&longitude=${lng}&method=${method}&month=3&year=2026`)
-        ]);
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        const data1 = await res1.json();
-        const data2 = await res2.json();
+        if (data.code !== 200) throw new Error(`API returned code ${data.code}: ${data.status}`);
 
-        if (data1.code !== 200 || data2.code !== 200) throw new Error("API Error");
-
-        const tFeb = data1.data;
-        const tMar = data2.data;
-
+        const days = data.data; // Array of 29 or 30 days
+        if (!days || !Array.isArray(days)) throw new Error("Invalid data format received from API");
         let html = '';
+
         const format12 = (tStr) => {
             try {
                 let cleanTStr = tStr.split(' ')[0].replace(/\(.*\)/, '');
@@ -3699,27 +3918,49 @@ async function initImsakiya() {
         };
 
         const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1;
+        const currentDateVal = today.getDate();
 
-        for (let i = 0; i < 30; i++) {
-            let currentDate = new Date(startDate);
-            currentDate.setDate(startDate.getDate() + i);
+        // Find corresponding Gregorian range to display in the header
+        let gregStart = '';
+        let gregEnd = '';
 
-            let d = currentDate.getDate();
-            let m = currentDate.getMonth() + 1;
+        if (days && days.length > 0) {
+            const firstDay = days[0].date.gregorian;
+            const lastDay = days[days.length - 1].date.gregorian;
+            // Aladhan API month object contains ar and en names
+            const firstMonthName = firstDay.month.ar || firstDay.month.en;
+            const lastMonthName = lastDay.month.ar || lastDay.month.en;
+            gregStart = `${firstDay.day} ${firstMonthName}`;
+            gregEnd = `${lastDay.day} ${lastMonthName} ${lastDay.year}`;
+        }
 
-            let timings = (m === 2) ? tFeb[d - 1].timings : tMar[d - 1].timings;
+        mName.innerText = `رمضان ${App.imsakiyaHijriYear} هـ | (${gregStart} - ${gregEnd})`;
 
-            const daysAr = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            let dayName = daysAr[currentDate.getDay()];
+        days.forEach((dayData, idx) => {
+            const greg = dayData.date.gregorian;
+            const hijri = dayData.date.hijri;
+            
+            const d = parseInt(greg.day);
+            const m = greg.month.number;
+            const y = parseInt(greg.year);
 
-            let isToday = (today.getDate() === d && (today.getMonth() + 1) === m);
+            const timings = dayData.timings;
+
+            // Arabic day name
+            const dayName = hijri.weekday.ar || greg.weekday.en;
+
+            // Check if this day is today
+            let isToday = (currentDateVal === d && currentMonth === m && currentYear === y);
             let rowStyle = isToday ? `style="background:rgba(212,175,55,0.15); border:2px solid var(--primary); box-shadow:0 0 10px rgba(212,175,55,0.2) inset;"` : `style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
             let highlightText = isToday ? `color:var(--primary); font-weight:bold;` : `color:var(--text-sec);`;
 
             html += `
                     <tr ${rowStyle}>
-                        <td style="font-weight:bold; color:var(--primary); font-family:'Amiri'; font-size:1.2rem; border-right: ${isToday ? '4px solid var(--primary)' : 'none'}">${i + 1}</td>
+                        <td style="font-weight:bold; color:var(--primary); font-family:'Amiri'; font-size:1.2rem; border-right: ${isToday ? '4px solid var(--primary)' : 'none'}">${idx + 1}</td>
                         <td style="font-size:0.9rem; ${highlightText}">${dayName} <br><span style="font-size:0.7rem; opacity:0.7;">${d}/${m}</span></td>
+                        <td>${format12(timings.Imsak)}</td>
                         <td>${format12(timings.Fajr)}</td>
                         <td>${format12(timings.Sunrise)}</td>
                         <td>${format12(timings.Dhuhr)}</td>
@@ -3727,13 +3968,34 @@ async function initImsakiya() {
                         <td>${format12(timings.Maghrib)}</td>
                         <td>${format12(timings.Isha)}</td>
                     </tr>`;
-        }
+        });
+
         tbody.innerHTML = html;
 
     } catch (e) {
-        console.error(e);
-        tbody.innerHTML = '<tr><td colspan="8" style="color:#ef4444; padding:20px;">حدث خطأ في تحميل المواقيت.<br>تأكد من الاتصال بالإنترنت.</td></tr>';
+        console.error("Imsakiya loading failed:", e);
+        tbody.innerHTML = '<tr><td colspan="9" style="color:#ef4444; padding:20px;">حدث خطأ في تحميل المواقيت.<br>تأكد من الاتصال بالإنترنت.</td></tr>';
     }
+}
+
+function loadImsakiya() {
+    initImsakiya();
+}
+
+function changeImsakiyaYear(dir) {
+    if (!App.imsakiyaHijriYear || isNaN(App.imsakiyaHijriYear)) {
+        try {
+            const now = moment().add(App.hijriAdj, 'days');
+            App.imsakiyaHijriYear = parseInt(now.format('iYYYY'));
+        } catch (e) {
+            App.imsakiyaHijriYear = 1447;
+        }
+    }
+    if (isNaN(App.imsakiyaHijriYear)) {
+        App.imsakiyaHijriYear = 1447;
+    }
+    App.imsakiyaHijriYear += dir;
+    initImsakiya();
 }
 
 function showRuqyah() {
@@ -4253,12 +4515,12 @@ function startCompass() {
 }
 
 function shareApp() {
-    const appLink = "https://play.google.com/store/apps/details?id=com.noor.app";
+    const appLink = "https://ehabamr062-ux.github.io/Quran/";
 
     if (navigator.share) {
         navigator.share({
             title: 'تطبيق النور',
-            text: 'أدعوك لتحميل تطبيق النور الشامل: قرآن، استماع، أذكار، مواقيت، قبلة. تطبيق رائع جداً!',
+            text: 'أدعوك لتصفح واستخدام تطبيق النور الشامل: قرآن، استماع، أذكار، مواقيت، قبلة. تطبيق رائع جداً!',
             url: appLink
         }).catch(console.error);
     } else {
@@ -4494,23 +4756,28 @@ function updateGamification() {
 
     const totalPoints = combinedDhikrScore + quizScore;
 
+    let levelId = 1;
     let levelTitle = "قارئ مبتدئ";
     let levelIcon = "🥉";
     let nextLevelMsg = "اجمع النقاط لترتقي للدرجة الفضية";
 
     if (totalPoints >= 10000) {
+        levelId = 5;
         levelTitle = "ختمة ماسية 👑";
         levelIcon = "💎";
         nextLevelMsg = "ما شاء الله! أنت في أعلى الدرجات";
     } else if (totalPoints >= 5000) {
+        levelId = 4;
         levelTitle = "بطل رمضان 🏆";
         levelIcon = "🏆";
         nextLevelMsg = "رائع.. استمر لتصل للدرجة الماسية (10000 نقطة)";
     } else if (totalPoints >= 2000) {
+        levelId = 3;
         levelTitle = "مداوم ذهبي 🥇";
         levelIcon = "🥇";
         nextLevelMsg = "ممتاز.. الطريق مفتوح لبطل رمضان (5000 نقطة)";
     } else if (totalPoints >= 500) {
+        levelId = 2;
         levelTitle = "مداوم فضي 🥈";
         levelIcon = "🥈";
         nextLevelMsg = "أحسنت.. اقتربت من الدرجة الذهبية (2000 نقطة)";
@@ -4529,6 +4796,241 @@ function updateGamification() {
     if (totalEl) totalEl.innerText = totalPoints;
     if (quizEl) quizEl.innerText = quizScore;
     if (dhikrEl) dhikrEl.innerText = combinedDhikrScore;
+
+    // Check for level up promotion
+    const lastLevel = parseInt(localStorage.getItem('last_reached_level') || '1');
+    if (levelId > lastLevel) {
+        localStorage.setItem('last_reached_level', levelId);
+        setTimeout(() => {
+            showLevelCongratulation(levelTitle, levelIcon);
+        }, 1000);
+    }
+
+    // Synchronize the home daily dhikr counter as well
+    if (typeof updateHomeDhikrCounter === 'function') {
+        updateHomeDhikrCounter();
+    }
+}
+
+function showLevelCongratulation(levelTitle, levelIcon) {
+    const modal = document.createElement('div');
+    modal.id = 'level-congratulation-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.85); z-index: 16000; 
+        display: flex; justify-content: center; align-items: center; 
+        backdrop-filter: blur(8px); animation: fadeIn 0.4s;
+    `;
+
+    modal.innerHTML = `
+        <div id="congrat-card-container" class="card" style="
+            width: 90%; 
+            max-width: 440px; 
+            padding: 30px 20px; 
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(212,175,55,0.4);
+            animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            background: linear-gradient(135deg, #0d131f 0%, #05080f 100%);
+            border-radius: 20px;
+            position: relative;
+        ">
+            <div style="font-size:3.5rem; margin-bottom:15px; animation: pulseLogo 1.5s infinite alternate;">🎉 ${levelIcon} 🎉</div>
+            
+            <h2 style="color:var(--primary); font-family:'Cairo'; font-size:1.6rem; margin-bottom:10px;">تهانينا الحارة! 🎉</h2>
+            <p style="color:#fff; font-size:1.1rem; margin-bottom:20px; font-family:'Cairo';">
+                لقد ارتقيت بجدارة إلى رتبة:
+                <br><span style="font-size:1.3rem; color:var(--primary); font-weight:bold; display:inline-block; margin-top:8px;">${levelTitle}</span>
+            </p>
+
+            <div id="congrat-input-area">
+                <p style="color:var(--text-sec); font-size:0.85rem; margin-bottom:15px;">اكتب اسمك الكريم لتوليد شهادة التقدير الخاصة بك:</p>
+                <input type="text" id="congrat-user-name" placeholder="اسمك الكريم هنا..." style="
+                    width: 85%;
+                    padding: 12px;
+                    border: 1px solid rgba(212,175,55,0.3);
+                    background: rgba(0,0,0,0.4);
+                    border-radius: 10px;
+                    color: #fff;
+                    text-align: center;
+                    font-family: 'Cairo', sans-serif;
+                    font-size: 1rem;
+                    margin-bottom: 20px;
+                    outline: none;
+                ">
+                <br>
+                <button id="generate-congrat-card-btn" style="
+                    width: 85%;
+                    background: linear-gradient(135deg, var(--primary), #b8860b);
+                    color: #000;
+                    border: none;
+                    padding: 12px;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                    font-size: 1rem;
+                ">توليد شهادة التقدير 📜</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#generate-congrat-card-btn').onclick = () => {
+        const userName = modal.querySelector('#congrat-user-name').value.trim();
+        if (!userName) {
+            alert("يرجى إدخال اسمك أولاً");
+            return;
+        }
+
+        // Show the beautiful certificate design
+        const cardContainer = modal.querySelector('#congrat-card-container');
+        cardContainer.style.maxWidth = "500px";
+        cardContainer.innerHTML = `
+            <div style="
+                border: 2px double var(--primary);
+                padding: 25px 15px;
+                border-radius: 15px;
+                background: rgba(255,215,0,0.02);
+                position: relative;
+            ">
+                <div style="position:absolute; top:10px; right:10px; font-size:1.2rem; opacity:0.3;">🌙</div>
+                <div style="position:absolute; top:10px; left:10px; font-size:1.2rem; opacity:0.3;">🕌</div>
+                
+                <h3 style="color:var(--primary); font-family:'Cairo'; font-size:1.25rem; margin-bottom:5px; letter-spacing:1px;">شهادة تهنئة وتقدير</h3>
+                <div style="font-size:0.75rem; color:var(--text-sec); margin-bottom:20px;">تطبيق النور الشامل</div>
+
+                <p style="color:var(--text-sec); font-size:0.9rem; margin-bottom:10px; font-family:'Cairo';">يَسر أسرة تطبيق النور أن تتقدم بخالص التهنئة للمثابر:</p>
+                <h2 style="color:#fff; font-family:'Cairo'; font-size:1.7rem; margin:10px 0; border-bottom:1px dashed var(--primary); display:inline-block; padding:0 20px;">${userName}</h2>
+
+                <p style="color:var(--text-main); font-size:0.95rem; line-height:1.6; margin:15px 0 25px; font-family:'Cairo';">
+                    وذلك لارتقائه بجدارة وعلوّ همته إلى رتبة:
+                    <br><b style="color:var(--primary); font-size:1.15rem;">${levelTitle}</b>
+                    <br><span style="font-size:0.8rem; color:var(--text-sec);">بعد وصوله للتحصيل المطلوب من الذكر والعبادة والمسابقات الدينية اليومية.</span>
+                </p>
+
+                <p style="color:var(--primary); font-family:'Amiri'; font-size:1.1rem; font-style:italic; margin-bottom:20px;">
+                    "وَفِي ذَٰلِكَ فَلْيَتَنَافَسِ الْمُتَنَافِسُونَ"
+                </p>
+
+                <div style="font-size:0.7rem; color:var(--text-sec); margin-bottom:15px;">يمكنك تصوير الشاشة (Screenshot) للاحتفاظ بالشهادة والافتخار بها 📸</div>
+
+                <button id="close-congrat-btn" style="
+                    background: rgba(255,255,255,0.08); 
+                    color: #fff; 
+                    border: 1px solid rgba(255,255,255,0.15); 
+                    padding: 8px 30px; 
+                    border-radius: 8px; 
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                    font-size: 0.9rem;
+                    transition: 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">إغلاق الشهادة</button>
+            </div>
+        `;
+
+        cardContainer.querySelector('#close-congrat-btn').onclick = () => {
+            modal.remove();
+        };
+    };
+}
+
+function showPointsSystem() {
+    const modal = document.createElement('div');
+    modal.id = 'points-system-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.75); z-index: 15000; 
+        display: flex; justify-content: center; align-items: center; 
+        backdrop-filter: blur(5px); animation: fadeIn 0.25s;
+    `;
+
+    modal.innerHTML = `
+        <div class="card" style="
+            width: 90%; 
+            max-width: 420px; 
+            padding: 25px; 
+            border: 1px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: right;
+            max-height: 85vh;
+            overflow-y: auto;
+        ">
+            <h3 style="color:var(--primary); font-family:'Cairo'; margin-bottom:20px; text-align:center; font-size:1.4rem; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fas fa-trophy"></i> دليل مستويات تطبيق النور
+            </h3>
+            
+            <p style="color:var(--text-main); font-size:0.9rem; line-height:1.6; margin-bottom:20px; text-align:center;">
+                اجمع النقاط اليومية من خلال قراءة القرآن والأذكار واجتياز المسابقات لترتقي بمستواك الإيماني!
+            </p>
+
+            <h4 style="color:var(--primary); font-family:'Cairo'; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;"><i class="fas fa-star"></i> نظام احتساب النقاط:</h4>
+            <ul style="color:var(--text-sec); font-size:0.85rem; line-height:1.8; padding-right:20px; margin-bottom:20px; list-style-type:square;">
+                <li><b>التسبيح والذكر:</b> تحصل على نقطة واحدة لكل تسبيحة، و10 نقاط عند إكمال ورد الأذكار اليومية.</li>
+                <li><b>المسابقات الدينية:</b> تحصل على 10 نقاط لكل إجابة صحيحة تجيب عليها في قسم المسابقات.</li>
+            </ul>
+
+            <h4 style="color:var(--primary); font-family:'Cairo'; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;"><i class="fas fa-award"></i> رتب ومستويات المستخدم:</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:25px;">
+                <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px;">
+                    <span style="font-size:1.8rem;">🥉</span>
+                    <div>
+                        <div style="color:var(--text-main); font-weight:bold; font-size:0.9rem;">قارئ مبتدئ</div>
+                        <div style="color:var(--text-sec); font-size:0.75rem;">من 0 إلى 499 نقطة</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px;">
+                    <span style="font-size:1.8rem;">🥈</span>
+                    <div>
+                        <div style="color:var(--text-main); font-weight:bold; font-size:0.9rem;">مداوم فضي</div>
+                        <div style="color:var(--text-sec); font-size:0.75rem;">من 500 إلى 1,999 نقطة</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px;">
+                    <span style="font-size:1.8rem;">🥇</span>
+                    <div>
+                        <div style="color:var(--text-main); font-weight:bold; font-size:0.9rem;">حريص ذهبي</div>
+                        <div style="color:var(--text-sec); font-size:0.75rem;">من 2,000 إلى 4,999 نقطة</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px;">
+                    <span style="font-size:1.8rem;">🏆</span>
+                    <div>
+                        <div style="color:var(--text-main); font-weight:bold; font-size:0.9rem;">بطل النور</div>
+                        <div style="color:var(--text-sec); font-size:0.75rem;">من 5,000 إلى 9,999 نقطة</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.3); padding:8px 12px; border-radius:10px;">
+                    <span style="font-size:1.8rem;">👑</span>
+                    <div>
+                        <div style="color:var(--primary); font-weight:bold; font-size:0.9rem;">ختمة ماسية</div>
+                        <div style="color:var(--text-sec); font-size:0.75rem;">10,000 نقطة فما فوق</div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="close-points-btn" style="
+                width: 100%; 
+                background: var(--primary); 
+                color: #000; 
+                border: none; 
+                padding: 12px; 
+                border-radius: 10px; 
+                font-weight: bold; 
+                cursor: pointer;
+                font-family: 'Cairo', sans-serif;
+                font-size: 1rem;
+            ">فهمت ذلك</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#close-points-btn').onclick = () => {
+        modal.remove();
+    };
 }
 
 const originalNavTo = window.navTo;

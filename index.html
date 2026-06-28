@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#1a1a1a">
 
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" href="app_icon_1782665380376.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&family=Tajawal:wght@300;400;500;700&display=swap"
@@ -26,18 +26,46 @@
 <body>
     <!-- Loader -->
     <div id="loader">
+        <img src="app_icon_1782665380376.png" alt="تطبيق النور" style="width: 120px; height: 120px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" class="loader-logo">
         <div class="spinner"></div>
     </div>
 
     <div class="container">
+        <!-- Back Button -->
+        <div id="back-btn" class="back-btn hidden" onclick="goBack()" title="العودة">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+
         <div id="p-home" class="page active">
             <!-- Header Section -->
             <div style="padding: 15px 0 25px 0; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:0.9rem; color:var(--text-sec); margin-bottom:2px;">مرحباً بك</div>
-                    <div
-                        style="font-family:'Cairo'; font-size:1.6rem; font-weight:800; color:var(--primary); letter-spacing:-0.5px;">
-                        تطبيق النور</div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div>
+                        <div style="font-size:0.9rem; color:var(--text-sec); margin-bottom:2px;">مرحباً بك</div>
+                        <div
+                            style="font-family:'Cairo'; font-size:1.6rem; font-weight:800; color:var(--primary); letter-spacing:-0.5px;">
+                            تطبيق النور</div>
+                    </div>
+                    
+                    <!-- Quick Theme Toggle Button -->
+                    <button onclick="toggleQuickTheme()" style="
+                        background: rgba(212,175,55,0.1);
+                        border: 1px solid rgba(212,175,55,0.25);
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 12px;
+                        color: var(--primary);
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.15rem;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                        outline: none;
+                    " title="تغيير المظهر السريع" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fas fa-palette"></i>
+                    </button>
                 </div>
                 <div style="text-align:left; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:12px;">
                     <div id="hijri-date-home"
@@ -48,24 +76,31 @@
             </div>
 
             <!-- Gamification Card -->
-            <div class="card"
-                style="margin-bottom:20px; text-align:center; background:linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(0,0,0,0.4) 100%); border:1px solid rgba(212,175,55,0.3); border-radius:16px;">
-                <div style="font-size:3.5rem; margin-bottom:10px; text-shadow:0 0 20px rgba(212,175,55,0.5);"
+            <div class="card premium-dashboard-card"
+                style="margin-bottom:20px; text-align:center; border-radius:16px; position:relative; cursor:pointer;"
+                onclick="showPointsSystem()">
+                
+                <!-- Points Guide Badge -->
+                <div style="position:absolute; top:12px; left:12px; color:var(--primary); font-size:0.72rem; font-weight:bold; display:flex; align-items:center; gap:4px; opacity:0.85; background:rgba(212,175,55,0.1); padding:4px 8px; border-radius:10px; border:1px solid rgba(212,175,55,0.2);">
+                    <span>دليل المستويات</span>
+                    <i class="fas fa-chevron-left" style="font-size:0.6rem;"></i>
+                </div>
+
+                <div style="font-size:3.5rem; margin-bottom:10px; text-shadow:0 0 20px rgba(212,175,55,0.3);"
                     id="user-badge-icon">🥉</div>
-                <h3 style="color:var(--primary); font-family:'Cairo'; margin-bottom:5px; text-shadow:0 1px 3px rgba(0,0,0,0.8);"
+                <h3 style="color:var(--primary); font-family:'Cairo'; margin-bottom:5px;"
                     id="user-badge-title">قارئ مبتدئ</h3>
                 <div style="color:var(--text-sec); font-size:0.9rem; margin-bottom:15px;" id="user-points-title">اجمع
                     النقاط لترتقي لمستوى أعلى</div>
 
-                <div
-                    style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.4); padding:15px; border-radius:15px; border-top:1px solid rgba(255,255,255,0.05); box-shadow:inset 0 2px 10px rgba(0,0,0,0.5);">
+                <div class="gamification-sub-container">
                     <div style="flex:1;">
                         <div style="font-size:1.4rem; font-weight:bold; color:#FFD700; font-family:'Cairo';"
                             id="user-total-points">0</div>
                         <div style="font-size:0.75rem; color:var(--text-sec);">النقاط الكلية</div>
                     </div>
-                    <div
-                        style="flex:1; border-right:1px solid rgba(255,255,255,0.1); border-left:1px solid rgba(255,255,255,0.1); padding:0 5px;">
+                    <div class="gamification-divider"
+                        style="flex:1; padding:0 5px;">
                         <div style="font-size:1.4rem; font-weight:bold; color:#4CAF50; font-family:'Cairo';"
                             id="user-quiz-score-ui">0</div>
                         <div style="font-size:0.75rem; color:var(--text-sec);">المسابقات</div>
@@ -79,33 +114,30 @@
             </div>
 
             <!-- Main Prayer Card -->
-            <div class="card"
-                style="background: linear-gradient(135deg, rgba(var(--primary-rgb, 255, 215, 0),0.15) 0%, rgba(0,0,0,0.6) 100%); border: 1px solid rgba(var(--primary-rgb, 255, 215, 0),0.3); position:relative; overflow:hidden; padding:25px; margin-bottom:30px; border-radius:24px;">
-                <div
-                    style="position:absolute; top:-20px; left:-20px; width:120px; height:120px; background:radial-gradient(circle, rgba(var(--primary-rgb, 255, 215, 0),0.2) 0%, transparent 70%); border-radius:50%;">
-                </div>
+            <div class="card premium-dashboard-card"
+                style="position:relative; overflow:hidden; padding:25px; margin-bottom:30px; border-radius:24px;">
+                <div class="prayer-card-glow"></div>
 
                 <div class="flex-between" style="align-items:center; position:relative; z-index:2;">
                     <div>
-                        <div style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:5px;">الصلاة القادمة
-                        </div>
+                        <div class="prayer-time-sub" style="font-size:0.9rem; margin-bottom:5px;">الصلاة القادمة</div>
                         <div id="next-prayer-name-home"
-                            style="font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Cairo'; text-shadow:0 0 20px rgba(var(--primary-rgb, 255, 215, 0),0.3);">
+                            style="font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Cairo'; text-shadow:0 0 20px rgba(var(--primary-rgb, 255, 215, 0),0.15);">
                             --</div>
                     </div>
                     <div style="text-align:left;">
-                        <div id="cd-timer-home"
-                            style="font-size:1.6rem; font-weight:bold; color:#fff; font-variant-numeric: tabular-nums; letter-spacing:1px;">
+                        <div id="cd-timer-home" class="prayer-countdown-timer"
+                            style="font-size:1.6rem; font-weight:bold; font-variant-numeric: tabular-nums; letter-spacing:1px;">
                             --:--:--</div>
-                        <div
-                            style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:center; letter-spacing:1px;">
+                        <div class="prayer-time-sub"
+                            style="font-size:0.75rem; text-align:center; letter-spacing:1px;">
                             متبقي</div>
                     </div>
                 </div>
 
                 <!-- Prayer strip -->
-                <div id="prayers-strip"
-                    style="display:flex; justify-content:space-between; margin-top:25px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); opacity:0.9;">
+                <div id="prayers-strip" class="prayer-strip-divider"
+                    style="display:flex; justify-content:space-between; margin-top:25px; padding-top:20px; opacity:0.9;">
                     <!-- Populated by JS -->
                     <div class="prayer-mini"><span class="name">الفجر</span><span class="time">--:--</span></div>
                     <div class="prayer-mini"><span class="name">الشروق</span><span class="time">--:--</span></div>
@@ -118,8 +150,8 @@
 
 
             <!-- Daily Stats Card -->
-            <div class="card"
-                style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); margin-bottom:20px; padding:15px; border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
+            <div class="card premium-dashboard-card"
+                style="margin-bottom:20px; padding:15px; border-radius:16px;">
                 <div class="flex-between" style="align-items:center;">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <div
@@ -147,7 +179,7 @@
                 style="display:grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap:10px; margin-bottom:30px;">
                 <div onclick="navTo('read')" class="quick-action">
                     <div class="icon-box gold-glow"><i class="fas fa-book-open"></i></div>
-                    <span style="font-size:0.85rem; font-weight:600;">المصحف</span>
+                    <span class="name" style="font-size:0.85rem; font-weight:600;">المصحف</span>
                 </div>
 
                 <div onclick="navTo('listen')" class="quick-action">
@@ -155,22 +187,22 @@
                         style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); color:white; display:flex; align-items:center; justify-content:center; width:55px; height:55px; border-radius:18px; font-size:1.4rem;">
                         <i class="fas fa-headphones-alt"></i>
                     </div>
-                    <span style="font-size:0.85rem; font-weight:600;">الاستماع</span>
+                    <span class="name" style="font-size:0.85rem; font-weight:600;">الاستماع</span>
                 </div>
 
                 <div onclick="navTo('azkar')" class="quick-action">
                     <div class="icon-box teal-glow"><i class="fas fa-hands-praying"></i></div>
-                    <span style="font-size:0.85rem; font-weight:600;">الأذكار</span>
+                    <span class="name" style="font-size:0.85rem; font-weight:600;">الأذكار</span>
                 </div>
 
                 <div onclick="navTo('dhikr')" class="quick-action">
                     <div class="icon-box purple-glow"><i class="fas fa-fingerprint"></i></div>
-                    <span style="font-size:0.85rem; font-weight:600;">السبحة</span>
+                    <span class="name" style="font-size:0.85rem; font-weight:600;">السبحة</span>
                 </div>
 
                 <div onclick="navTo('qibla')" class="quick-action">
                     <div class="icon-box orange-glow"><i class="fas fa-kaaba"></i></div>
-                    <span style="font-size:0.85rem; font-weight:600;">القبلة</span>
+                    <span class="name" style="font-size:0.85rem; font-weight:600;">القبلة</span>
                 </div>
             </div>
 
@@ -454,14 +486,18 @@
                     المشغل القرآني</h3>
 
                 <!-- Album Art / Vinyl Style -->
-                <div class="album-art-container" style="display: flex; justify-content: center; margin-bottom: 25px;">
+                <div class="album-art-container" style="display: flex; justify-content: center; margin-bottom: 25px; position: relative; align-items: center;">
+                    <!-- Glowing ring behind vinyl -->
+                    <div class="vinyl-glow-ring"
+                        style="position: absolute; width: 230px; height: 230px; border-radius: 50%; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); opacity: 0; filter: blur(12px); transition: opacity 0.5s; pointer-events: none; z-index: 1;">
+                    </div>
                     <div class="vinyl-record"
-                        style="width: 220px; height: 220px; border-radius: 50%; background: linear-gradient(45deg, #111, #333); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255, 255, 255, 0.1);">
+                        style="width: 220px; height: 220px; border-radius: 50%; background: linear-gradient(45deg, #111, #333); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255, 255, 255, 0.1); z-index: 2;">
                         <div
                             style="width: 100%; height: 100%; border-radius: 50%; background: repeating-radial-gradient(#222 0, #222 2px, #333 3px, #333 4px); opacity: 0.8; position: absolute;">
                         </div>
                         <div class="album-art-placeholder"
-                            style="width: 140px; height: 140px; border-radius: 50%; background: var(--bg-main); z-index: 2; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; position: relative; overflow: hidden;">
+                            style="width: 140px; height: 140px; border-radius: 50%; background: var(--bg-main); z-index: 3; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; position: relative; overflow: hidden;">
                             <i class="fas fa-quran" style="font-size:4rem; color:var(--primary); opacity: 0.8;"></i>
                             <div id="playing-animation"
                                 style="position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--primary); opacity: 0; transition: opacity 0.5s;">
@@ -540,34 +576,33 @@
                 </div>
 
                 <!-- Settings / Selection -->
-                <div
-                    style="background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div class="audio-select-container">
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
                         <div style="flex: 1;">
                             <label
-                                style="display:block; text-align:right; margin-bottom:5px; font-size:0.75rem; color: var(--text-sec);">القارئ</label>
+                                style="display:block; text-align:right; margin-bottom:5px; font-size:0.75rem; color: var(--text-sec); font-family: 'Cairo';">القارئ</label>
                             <select id="reciter-select" onchange="updatePlayerSource()"
-                                style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; padding: 8px;"></select>
+                                class="modern-select-audio"></select>
                         </div>
                         <div style="flex: 1;">
                             <label
-                                style="display:block; text-align:right; margin-bottom:5px; font-size:0.75rem; color: var(--text-sec);">السورة</label>
+                                style="display:block; text-align:right; margin-bottom:5px; font-size:0.75rem; color: var(--text-sec); font-family: 'Cairo';">السورة</label>
                             <select id="surah-select-audio" onchange="updatePlayerSource(true)"
-                                style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; padding: 8px;"></select>
+                                class="modern-select-audio"></select>
                         </div>
                     </div>
 
                     <div class="flex-between" style="margin-top:10px;">
-                        <button class="secondary" id="btn-test-reciter"
-                            style="width:100%; font-size:0.85rem; padding: 8px;" onclick="testReciter()">
+                        <button class="premium-btn-listen" id="btn-test-reciter"
+                            style="width:100%;" onclick="testReciter()">
                             <i class="fas fa-wifi" style="margin-left: 5px;"></i> اختبار اتصال القارئ
                         </button>
                     </div>
                 </div>
-                <div class="flex-between" style="margin-top:5px;">
+                <div class="flex-between" style="margin-top:8px;">
                     <a id="download-btn" href="#" target="_blank" style="width:100%; text-decoration:none;">
-                        <button class="secondary" style="width:100%; font-size:0.8rem"><i class="fas fa-download"></i>
-                            تحميل السورة</button>
+                        <button class="premium-btn-listen" style="width:100%; background: rgba(212, 175, 55, 0.08); border-color: rgba(212, 175, 55, 0.2); color: var(--primary);"><i class="fas fa-download"></i>
+                            تحميل الملف الصوتي للسورة</button>
                     </a>
                 </div>
             </div>
@@ -745,15 +780,15 @@
         <div id="p-imsakiya" class="page">
             <div class="card">
                 <div class="flex-between" style="margin-bottom:15px;">
-                    <button class="secondary" style="width:auto; padding:5px 12px;" onclick="changeImsakiyaMonth(-1)"><i
+                    <button class="secondary" style="width:auto; padding:5px 12px;" onclick="changeImsakiyaYear(-1)"><i
                             class="fas fa-chevron-right"></i></button>
                     <div style="text-align:center">
                         <h3 style="color:var(--primary); margin:0; font-family:'Cairo';"><i
                                 class="fas fa-calendar-day"></i>
-                            إمساكية الشهر</h3>
+                            إمساكية شهر رمضان المبارك</h3>
                         <div id="imsakiya-month-name" style="font-size:0.9rem; color:var(--accent);">...</div>
                     </div>
-                    <button class="secondary" style="width:auto; padding:5px 12px;" onclick="changeImsakiyaMonth(1)"><i
+                    <button class="secondary" style="width:auto; padding:5px 12px;" onclick="changeImsakiyaYear(1)"><i
                             class="fas fa-chevron-left"></i></button>
                 </div>
                 <div
@@ -1284,7 +1319,7 @@
                     <p style="color:var(--text-sec); font-size:0.9rem; margin:0 0 12px;">مرافقك الروحاني اليومي</p>
                     <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.3); border-radius:20px; padding:5px 16px;">
                         <i class="fas fa-star" style="color:var(--primary); font-size:0.75rem;"></i>
-                        <span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">الإصدار الذهبي 2.5.0</span>
+                        <span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">الإصدار الذهبي 2.5.0 Version :3</span>
                     </div>
                 </div>
 
@@ -1401,17 +1436,11 @@
                         <div style="text-align:right;">
                             <div style="font-size:0.75rem; color:var(--text-sec); margin-bottom:3px;">تصميم وبرمجة</div>
                             <div style="color:var(--primary); font-weight:bold; font-size:1.1rem; font-family:'Cairo';">AMR Ehab</div>
-                            <div style="font-size:0.75rem; color:var(--text-sec); margin-top:2px;">مطوّر تطبيقات إسلامية</div>
                         </div>
                         <div style="display:flex; gap:10px;">
                             <a href="https://wa.me/201006825905" target="_blank" style="text-decoration:none;">
                                 <div style="width:44px; height:44px; background:linear-gradient(135deg,#25D366,#128C7E); border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(37,211,102,0.3);">
                                     <i class="fab fa-whatsapp" style="font-size:1.4rem; color:#fff;"></i>
-                                </div>
-                            </a>
-                            <a href="https://t.me/+201006825905" target="_blank" style="text-decoration:none;">
-                                <div style="width:44px; height:44px; background:linear-gradient(135deg,#0088cc,#005f8f); border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,136,204,0.3);">
-                                    <i class="fab fa-telegram-plane" style="font-size:1.4rem; color:#fff;"></i>
                                 </div>
                             </a>
                         </div>
@@ -1422,7 +1451,7 @@
                 <div style="text-align:center; margin-top:20px; margin-bottom:10px;">
                     <p style="color:var(--text-sec); font-size:0.8rem; line-height:1.8;">
                         صُنع بـ <i class="fas fa-heart" style="color:#ef4444;"></i> لوجه الله<br>
-                        <span style="color:rgba(255,255,255,0.2);">© 2025 تطبيق النور — جميع الحقوق محفوظة</span>
+                        <span style="color:rgba(255,255,255,0.2);">© 2026 تطبيق النور — جميع الحقوق محفوظة</span>
                     </p>
                 </div>
 
@@ -1445,12 +1474,12 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active" onclick="navTo('home')"><i class="fas fa-home"></i> الرئيسية</div>
-        <div class="nav-item" onclick="navTo('read')"><i class="fas fa-book-open"></i> المصحف</div>
-        <div class="nav-item" onclick="navTo('azkar')"><i class="fas fa-hands-praying"></i> الأذكار</div>
-        <div class="nav-item" onclick="navTo('dhikr')"><i class="fas fa-fingerprint"></i> التسبيح</div>
-        <div class="nav-item" onclick="navTo('qibla')"><i class="far fa-compass"></i> القبلة</div>
-        <div class="nav-item" onclick="navTo('settings')"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item active" onclick="navTo('home')"><i class="fas fa-home"></i> <span>الرئيسية</span></div>
+        <div class="nav-item" onclick="navTo('read')"><i class="fas fa-book-open"></i> <span>المصحف</span></div>
+        <div class="nav-item" onclick="navTo('azkar')"><i class="fas fa-hands-praying"></i> <span>الأذكار</span></div>
+        <div class="nav-item" onclick="navTo('dhikr')"><i class="fas fa-fingerprint"></i> <span>التسبيح</span></div>
+        <div class="nav-item" onclick="navTo('qibla')"><i class="far fa-compass"></i> <span>القبلة</span></div>
+        <div class="nav-item" onclick="navTo('settings')"><i class="fas fa-cog"></i> <span>الإعدادات</span></div>
     </div>
     <!-- Audio Elements -->
     <audio id="main-audio" preload="none"></audio>

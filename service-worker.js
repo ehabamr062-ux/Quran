@@ -5,7 +5,7 @@ const ASSETS = [
     './style.css',
     './app.js',
     './quran_data.js',
-    './icon.png'
+    './app_icon_1782665380376.png'
 ];
 
 // Install Event - Cache all essential local assets
@@ -68,4 +68,66 @@ self.addEventListener('fetch', event => {
             })
         );
     }
+});
+
+// Alarm storage in Service Worker memory
+let alarms = [];
+
+self.addEventListener('message', event => {
+    const { type, payload } = event.data;
+    
+    if (type === 'SHOW_NOW') {
+        const { title, body, icon, badge, url, requireInteraction } = payload;
+        self.registration.showNotification(title, {
+            body,
+            icon: icon || 'app_icon_1782665380376.png',
+            badge: badge || 'app_icon_1782665380376.png',
+            data: { url },
+            requireInteraction: requireInteraction || false
+        });
+    }
+    
+    if (type === 'SCHEDULE_ALARM') {
+        // Add to alarms list
+        alarms = alarms.filter(a => a.id !== payload.id);
+        alarms.push(payload);
+    }
+    
+    if (type === 'CANCEL_ALARM') {
+        alarms = alarms.filter(a => a.id !== payload.id);
+    }
+});
+
+// Periodic check in Service Worker (every 10 seconds)
+setInterval(() => {
+    const now = Date.now();
+    const activeAlarms = alarms.filter(a => a.fireAt <= now);
+    activeAlarms.forEach(alarm => {
+        self.registration.showNotification('تطبيق النور — ' + alarm.title, {
+            body: alarm.body,
+            icon: alarm.icon || 'app_icon_1782665380376.png',
+            badge: alarm.badge || 'app_icon_1782665380376.png',
+            data: { url: alarm.url },
+            requireInteraction: alarm.requireInteraction || false
+        });
+    });
+    alarms = alarms.filter(a => a.fireAt > now);
+}, 10000);
+
+// Notification Click Handler to open app
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    const url = event.notification.data?.url || '/';
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window' }).then(windowClients => {
+            for (let client of windowClients) {
+                if (client.url.includes(url) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (self.clients.openWindow) {
+                return self.clients.openWindow(url);
+            }
+        })
+    );
 });
