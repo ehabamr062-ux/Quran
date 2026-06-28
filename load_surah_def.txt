@@ -1,0 +1,807 @@
+Step 94:
+Created At: 2026-06-27T22:19:05Z
+Completed At: 2026-06-27T22:19:05Z
+File Path: `file:///c:/Users/Test/Desktop/QURAN%20APP%20%20V.1/index.html`
+Total Lines: 9094
+Total Bytes: 490865
+Showing lines 4305 to 5100
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+4305:                     padding: 40px 30px; 
+4306:                     width: 90%; 
+4307:                     max-width: 500px; 
+4308:                     text-align: center; 
+4309:                     box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+4310:                     position: relative;
+4311:                     animation: slideUpFade 0.6s;
+4312:                 ">
+4313:                     <div style="position:absolute; top:20px; right:20px; color:rgba(255,255,255,0.3); font-size:0.8rem;">إعلان التحديثات (${count}/2)</div>
+4314:                     
+4315:                     <div style="width:80px; height:80px; background:var(--primary); border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px var(--primary);">
+4316:                         <i class="fas fa-crown" style="font-size:2.5rem; color:#000;"></i>
+4317:                     </div>
+4318: 
+4319:                     <h2 style="color:var(--primary); font-family:'Cairo'; font-size:1.8rem; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">الإصدار الماسي</h2>
+4320:                     <p style="color:#fff; font-size:1.2rem; margin-bottom:30px;">
+4321:                         اكتشف الآن المميزات الجديدة التي تمت إضافتها خصيصاً لك اليوم!
+4322:                     </p>
+4323: 
+4324:                     <div style="text-align:right; background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin-bottom:30px;">
+4325:                         <div style="margin-bottom:10px; font-size:1.1rem; color:#eee; display:flex; align-items:center;">
+4326:                             <i class="fas fa-book-open" style="color:var(--primary); margin-left:10px;"></i> قصص الأنبياء كاملة + قراءة صوتية
+4327:                         </div>
+4328:                         <div style="margin-bottom:10px; font-size:1.1rem; color:#eee; display:flex; align-items:center;">
+4329:                             <i class="fas fa-palette" style="color:var(--primary); margin-left:10px;"></i> ثيمات الياقوت والزمرد الجديدة
+4330:                         </div>
+4331:                         <div style="font-size:1.1rem; color:#eee; display:flex; align-items:center;">
+4332:                             <i class="fas fa-rocket" style="color:var(--primary); margin-left:10px;"></i> تحسينات شاملة في الأداء والسرعة
+4333:                         </div>
+4334:                     </div>
+4335: 
+4336:                     <div style="font-size:3rem; font-weight:bold; color:var(--primary); margin-bottom:5px; font-family:monospace;" id="ad-timer">30</div>
+4337:                     <div style="font-size:0.9rem; color:#888; margin-bottom:25px;">ثانية للإغلاق التلقائي</div>
+4338: 
+4339:                     <button onclick="this.closest('#announcement-modal').remove()" 
+4340:                         style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:#fff; 
+4341:                         padding:12px 30px; border-radius:30px; cursor:pointer; font-weight:bold; transition:0.3s;"
+4342:                         onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+4343:                         onmouseout="this.style.background='transparent'">
+4344:                         إغلاق الإعلان
+4345:                     </button>
+4346:                 </div>
+4347:             `;
+4348: 
+4349:             document.body.appendChild(modal);
+4350: 
+4351:             // Timer Logic
+4352:             let timeLeft = 30;
+4353:             const timerEl = modal.querySelector('#ad-timer');
+4354:             const interval = setInterval(() => {
+4355:                 timeLeft--;
+4356:                 if (timerEl) timerEl.innerText = timeLeft;
+4357:                 if (timeLeft <= 0) {
+4358:                     clearInterval(interval);
+4359:                     if (document.body.contains(modal)) modal.remove();
+4360:                 }
+4361:             }, 1000);
+4362:         }
+4363: 
+4364:         // --- NAVIGATION ---
+4365:         function navTo(id, pushHistory = true) {
+4366:             window.scrollTo(0, 0);
+4367:             localStorage.setItem('last_active_page', id); // Save current page
+4368:             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+4369:             document.getElementById('p-' + id).classList.add('active');
+4370: 
+4371:             if (id === 'azkar') showAzkarCategories();
+4372:             if (id === 'imsakiya') loadImsakiya();
+4373:             if (id === 'settings') {
+4374:                 checkPromoVisibility();
+4375:                 setTimeout(showSettingsAnnouncement, 500);
+4376:             }
+4377: 
+4378:             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+4379:             // Mapping for highlighting
+4380:             const idx = ['home', 'read', 'azkar', 'dhikr', 'qibla', 'settings'].indexOf(id === 'hadith' || id === 'names' || id === 'listen' || id === 'calendar' || id === 'stories' || id === 'quiz' || id === 'juz' || id === 'imsakiya' || id === 'ramadan_duas' || id === 'wallpapers' ? 'home' : id);
+4381:             if (idx > -1) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+4382: 
+4383:             // Back button
+4384:             document.getElementById('back-btn').classList.toggle('hidden', id === 'home');
+4385: 
+4386:             // Mini player visibility
+4387:             const mini = document.getElementById('mini-player');
+4388:             if (id === 'listen') mini.style.display = 'none';
+4389:             else if (App.audio.src) mini.style.display = 'flex';
+4390: 
+4391:             // Refresh bookmark history when entering settings
+4392:             if (id === 'settings') renderBookmarkHistory();
+4393: 
+4394:             // History Support for AppCreator24 Back Button
+4395:             if (pushHistory) {
+4396:                 history.pushState({ page: id }, null, `#${id}`);
+4397:             }
+4398:         }
+4399: 
+4400:         // Handle Hardware Back Button
+4401:         window.onpopstate = (e) => {
+4402:             if (e.state && e.state.page) {
+4403:                 navTo(e.state.page, false);
+4404:             } else {
+4405:                 navTo('home', false);
+4406:             }
+4407:         };
+4408: 
+4409:         function testNotification() {
+4410:             Notification.requestPermission().then(perm => {
+4411:                 if (perm === 'granted') {
+4412:                     new Notification("تطبيق النور", {
+4413:                         body: "الإشعارات تعمل بنجاح! سيتم تنبيهك عند الصلاة.",
+4414:                         icon: 'https://cdn-icons-png.flaticon.com/512/5146/5146011.png'
+4415:                     });
+4416:                     // تشغيل صوت قصير للتأكيد
+4417:                     manualPlayAdhan();
+4418:                 } else {
+4419:                     alert("يرجى السماح بالإشعارات أولاً");
+4420:                 }
+4421:             });
+4422:         }
+4423: 
+4424:         // --- PRAYER TIMES ---
+4425:         function initPrayerTimes() {
+4426:             // 1. Try to load saved location first
+4427:             const savedLoc = JSON.parse(localStorage.getItem('user_location'));
+4428:             if (savedLoc) {
+4429:                 App.location = savedLoc;
+4430:                 App.qiblaOffset = calculateQibla(App.location.lat, App.location.lng);
+4431:                 document.getElementById('location-status').innerText = "موقع محفوظ";
+4432:                 fetchPrayers();
+4433:             }
+4434: 
+4435:             if (navigator.geolocation) {
+4436:                 navigator.geolocation.getCurrentPosition(pos => {
+4437:                     App.location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+4438:                     localStorage.setItem('user_location', JSON.stringify(App.location));
+4439:                     // حساب زاوية القبلة بناءً على الموقع الحالي
+4440:                     App.qiblaOffset = calculateQibla(App.location.lat, App.location.lng);
+4441:                     document.getElementById('location-status').innerText = "تم تحديد الموقع";
+4442:                     fetchPrayers();
+4443:                 }, () => {
+4444:                     if (!savedLoc) fetchPrayers();
+4445:                 });
+4446:             } else if (!savedLoc) {
+4447:                 fetchPrayers();
+4448:             }
+4449:         }
+4450: 
+4451:         async function fetchPrayers() {
+4452:             const d = new Date();
+4453:             const pad = (n) => n < 10 ? '0' + n : n;
+4454:             const str = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+4455:             const cacheKey = `prayers_${str}_${App.location.lat}_${App.location.lng}`;
+4456: 
+4457:             // Try Cache First
+4458:             const cached = localStorage.getItem(cacheKey);
+4459:             if (cached) {
+4460:                 renderPrayers(JSON.parse(cached));
+4461:             }
+4462: 
+4463:             try {
+4464:                 const res = await fetch(`https://api.aladhan.com/v1/timings/${str}?latitude=${App.location.lat}&longitude=${App.location.lng}&method=5&adjustment=${App.hijriAdj}`);
+4465:                 const data = await res.json();
+4466:                 if (data.code === 200 && data.data) {
+4467:                     localStorage.setItem(cacheKey, JSON.stringify(data.data));
+4468:                     renderPrayers(data.data);
+4469:                 }
+4470:             } catch (e) {
+4471:                 console.log(e);
+4472:                 if (!cached) {
+4473:                     document.getElementById('prayers-list').innerHTML = '<div style="text-align:center; padding:10px; color:var(--accent);"><i class="fas fa-wifi-slash"></i> وضع عدم الاتصال<br><small>تعذر تحديث المواقيت. يرجى الاتصال بالإنترنت لتحديث البيانات.</small></div>';
+4474:                 }
+4475:             }
+4476:         }
+4477: 
+4478:         function renderPrayers(data) {
+4479:             let timings = data.timings;
+4480: 
+4481:             // Update Dates (Home & Old)
+4482:             const hijriStr = `${data.date.hijri.day} ${data.date.hijri.month.ar} ${data.date.hijri.year}`;
+4483:             const gregStr = data.date.readable;
+4484: 
+4485:             // Old
+4486:             const oldG = document.getElementById('gregorian-date'); if (oldG) oldG.innerText = gregStr;
+4487:             const oldH = document.getElementById('hijri-date'); if (oldH) oldH.innerText = hijriStr;
+4488: 
+4489:             // New Home
+4490:             const homeG = document.getElementById('greg-date-home'); if (homeG) homeG.innerText = gregStr;
+4491:             const homeH = document.getElementById('hijri-date-home'); if (homeH) homeH.innerText = hijriStr;
+4492:             // Dynamic Ramadan Override for 1447 (Starting Feb 19, 2026)
+4493:             const _d = new Date();
+4494:             const todayDate = new Date(_d.getFullYear(), _d.getMonth(), _d.getDate());
+4495:             const ramadanStart = new Date(2026, 1, 19); // 19 Feb 2026
+4496:             const diffTime = todayDate - ramadanStart;
+4497:             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+4498: 
+4499:             if (diffDays >= 0 && diffDays <= 30) {
+4500:                 const _hStr = `${diffDays + 1} رمضان 1447`;
+4501:                 if (homeH) homeH.innerText = _hStr;
+4502:                 if (oldH) oldH.innerText = _hStr;
+4503:             }
+4504: 
+4505: 
+4506:             // Render Prayers Strip (New Home)
+4507:             const strip = document.getElementById('prayers-strip');
+4508:             if (strip) {
+4509:                 strip.innerHTML = '';
+4510:                 const pList = [
+4511:                     { k: 'Fajr', n: 'الفجر' }, { k: 'Sunrise', n: 'الشروق' }, { k: 'Dhuhr', n: 'الظهر' },
+4512:                     { k: 'Asr', n: 'العصر' }, { k: 'Maghrib', n: 'المغرب' }, { k: 'Isha', n: 'العشاء' }
+4513:                 ];
+4514:                 pList.forEach(p => {
+4515:                     if (timings[p.k]) {
+4516:                         let [h, m] = timings[p.k].split(':');
+4517:                         let h12 = h % 12 || 12;
+4518:                         strip.innerHTML += `<div class="prayer-mini" id="strip-${p.k}"><span class="name">${p.n}</span><span class="time">${h12}:${m}</span></div>`;
+4519:                     }
+4520:                 });
+4521:             }
+4522: 
+4523:             // Old List (Keep it if element exists, usually on separate page now or hidden)
+4524:             const map = {
+4525:                 Fajr: { name: "الفجر", icon: "fa-cloud-sun" },
+4526:                 Sunrise: { name: "الشروق", icon: "fa-sun" },
+4527:                 Dhuhr: { name: "الظهر", icon: "fa-sun" },
+4528:                 Asr: { name: "العصر", icon: "fa-cloud" },
+4529:                 Maghrib: { name: "المغرب", icon: "fa-cloud-moon" },
+4530:                 Isha: { name: "العشاء", icon: "fa-moon" }
+4531:             };
+4532:             const list = document.getElementById('prayers-list');
+4533:             if (list) {
+4534:                 list.innerHTML = "";
+4535:                 list.className = "prayers-grid";
+4536:                 for (let k in map) {
+4537:                     if (timings[k]) {
+4538:                         let [h, m] = timings[k].split(':');
+4539:                         let suffix = h >= 12 ? 'م' : 'ص';
+4540:                         let h12 = h % 12 || 12;
+4541:                         list.innerHTML += `
+4542:                         <div class="prayer-item" id="row-${k}">
+4543:                             <div class="flex-center" style="gap:15px;">
+4544:                                 <div class="prayer-icon"><i class="fas ${map[k].icon}"></i></div>
+4545:                                 <span class="prayer-name">${map[k].name}</span>
+4546:                             </div>
+4547:                             <span class="prayer-time">${h12}:${m} <small style="font-size:0.8em">${suffix}</small></span>
+4548:                         </div>`;
+4549:                     }
+4550:                 }
+4551:             }
+4552:             startCountdown(timings);
+4553:         }
+4554: 
+4555:         function startCountdown(timings) {
+4556:             if (App.countdownInterval) clearInterval(App.countdownInterval);
+4557: 
+4558:             // تسجيل يوم هذه المواقيت لضمان التحديث عند منتصف الليل
+4559:             let timingsDay = new Date().getDate();
+4560: 
+4561:             App.countdownInterval = setInterval(() => {
+4562:                 const now = new Date();
+4563: 
+4564:                 // 0. التحقق من دخول يوم جديد (تحديث المواقيت تلقائياً)
+4565:                 if (now.getDate() !== timingsDay) {
+4566:                     console.log("New day detected, refreshing prayers...");
+4567:                     clearInterval(App.countdownInterval);
+4568:                     fetchPrayers();
+4569:                     return;
+4570:                 }
+4571: 
+4572:                 const order = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+4573:                 const ar = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
+4574: 
+4575:                 // 1. Check for Adhan Trigger (Robust Time Window)
+4576:                 order.forEach(p => {
+4577:                     if (timings[p] && App.lastAdhan !== p) {
+4578:                         // Parse time safely (handle "HH:MM (EST)" format if present)
+4579:                         let timeStr = timings[p].split(' ')[0];
+4580:                         let [h, m] = timeStr.split(':');
+4581:                         let pDate = new Date();
+4582:                         pDate.setHours(parseInt(h), parseInt(m), 0, 0);
+4583: 
+4584:                         let diff = now.getTime() - pDate.getTime();
+4585: 
+4586:                         // Window: 0 to 5 minutes (300000ms) لضمان العمل حتى لو تأخر المعالج قليلاً
+4587:                         if (diff >= 0 && diff < 300000) {
+4588:                             playAdhan(p, ar[p]);
+4589:                         }
+4590:                     }
+4591:                 });
+4592: 
+4593:                 // 2. Calculate Next Prayer for UI
+4594:                 let next = "Fajr", minDiff = Infinity;
+4595: 
+4596:                 order.forEach(p => {
+4597:                     let [h, m] = timings[p].split(':');
+4598:                     let pDate = new Date(); pDate.setHours(h, m, 0);
+4599:                     let diff = pDate - now;
+4600:                     if (diff > 0 && diff < minDiff) { minDiff = diff; next = p; }
+4601:                 });
+4602: 
+4603:                 if (minDiff === Infinity) { // Next is Fajr tomorrow
+4604:                     let [h, m] = timings.Fajr.split(':');
+4605:                     let pDate = new Date(); pDate.setDate(pDate.getDate() + 1); pDate.setHours(h, m, 0);
+4606:                     minDiff = pDate - now;
+4607:                 }
+4608: 
+4609:                 // Update UI
+4610:                 // Old Elements
+4611:                 const oldName = document.getElementById('next-prayer-name');
+4612:                 if (oldName) oldName.innerText = ar[next];
+4613: 
+4614:                 let h = Math.floor(minDiff / 3600000).toString().padStart(2, '0');
+4615:                 let m = Math.floor((minDiff % 3600000) / 60000).toString().padStart(2, '0');
+4616:                 let s = Math.floor((minDiff % 60000) / 1000).toString().padStart(2, '0');
+4617: 
+4618:                 if (document.getElementById('cd-h')) {
+4619:                     document.getElementById('cd-h').innerText = h;
+4620:                     document.getElementById('cd-m').innerText = m;
+4621:                     document.getElementById('cd-s').innerText = s;
+4622:                 }
+4623:                 document.getElementById('row-' + next)?.classList.add('current');
+4624: 
+4625:                 // NEW HOME UI
+4626:                 const homeName = document.getElementById('next-prayer-name-home');
+4627:                 if (homeName) homeName.innerText = ar[next];
+4628: 
+4629:                 const homeTimer = document.getElementById('cd-timer-home');
+4630:                 if (homeTimer) homeTimer.innerText = `${h}:${m}:${s}`;
+4631: 
+4632:                 // Active Strip Item
+4633:                 document.querySelectorAll('.prayer-mini').forEach(item => {
+4634:                     item.classList.remove('active');
+4635:                     item.style.color = 'var(--text-sec)';
+4636:                     item.style.fontWeight = 'normal';
+4637:                 });
+4638:                 const activeStrip = document.getElementById('strip-' + next);
+4639:                 if (activeStrip) {
+4640:                     activeStrip.classList.add('active');
+4641:                     activeStrip.style.color = '#000';
+4642:                     activeStrip.style.background = 'linear-gradient(135deg, #FFD700, #FDB931)';
+4643:                     activeStrip.style.fontWeight = 'bold';
+4644:                     activeStrip.style.borderRadius = '12px';
+4645:                     activeStrip.style.padding = '2px 8px';
+4646:                     activeStrip.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.5)';
+4647:                 }
+4648: 
+4649:                 // Pre-notification (15 mins before)
+4650:                 // Check if minDiff is around 15 minutes (900000ms)
+4651:                 if (minDiff <= 900000 && minDiff > 899000) {
+4652:                     const preEnabled = localStorage.getItem('pre_notify') !== 'false';
+4653:                     if (preEnabled && Notification.permission === 'granted') {
+4654:                         new Notification(`اقترب وقت صلاة ${ar[next]} (بقي 15 دقيقة)`);
+4655:                     }
+4656:                 }
+4657:             }, 1000);
+4658:         }
+4659: 
+4660: 
+4661:         function unlockAudio() {
+4662:             // Play/Pause quickly to unlock audio context on mobile browsers
+4663:             const a = document.getElementById('adhan-audio');
+4664:             a.muted = true;
+4665:             a.play().then(() => {
+4666:                 a.pause();
+4667:                 a.currentTime = 0;
+4668:                 a.muted = false;
+4669:             }).catch(e => { });
+4670: 
+4671:             // تفعيل الصوت الصامت إذا كان وضع الخلفية مفعلاً
+4672:             if (document.getElementById('wakelock-toggle').checked) {
+4673:                 const s = document.getElementById('silent-audio');
+4674:                 if (s) s.play().catch(e => { });
+4675: 
+4676:                 // Show status indicator
+4677:                 const statusEl = document.getElementById('auto-adhan-status');
+4678:                 if (statusEl) statusEl.style.display = 'block';
+4679:             }
+4680:         }
+4681: 
+4682:         function playAdhan(prayerKey, prayerName) {
+4683:             // Prevent replay on refresh
+4684:             const lastPlayed = sessionStorage.getItem('last_adhan_played');
+4685:             if (lastPlayed === prayerKey) {
+4686:                 App.lastAdhan = prayerKey;
+4687:                 return;
+4688:             }
+4689: 
+4690:             App.lastAdhan = prayerKey;
+4691:             sessionStorage.setItem('last_adhan_played', prayerKey);
+4692: 
+4693:             let adhanSrc = localStorage.getItem('adhan_voice') || 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+4694:             if (adhanSrc === 'custom') {
+4695:                 adhanSrc = localStorage.getItem('custom_adhan_data') || 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+4696:             }
+4697: 
+4698:             // --- Background Playback Strategy (Hijack Silent Player) ---
+4699:             const wakeLockEnabled = document.getElementById('wakelock-toggle').checked;
+4700:             const silentAudio = document.getElementById('silent-audio');
+4701: 
+4702:             // Default player (Standard)
+4703:             const standardPlayer = document.getElementById('adhan-audio');
+4704: 
+4705:             // Determine which player to use
+4706:             let activePlayer = standardPlayer;
+4707: 
+4708:             // If Background Mode is ACTIVE and silent audio is playing, use IT to play Adhan
+4709:             // This is the "Magic Trick" to bypass background restrictions
+4710:             if (wakeLockEnabled && silentAudio && !silentAudio.paused) {
+4711:                 console.log("Hijacking silent player for Adhan (Background Mode)");
+4712:                 activePlayer = silentAudio;
+4713: 
+4714:                 // Save state to restore later
+4715:                 const restoreSilent = () => {
+4716:                     console.log("Adhan finished, restoring silent loop...");
+4717:                     activePlayer.src = 'data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+4718:                     activePlayer.loop = true;
+4719:                     activePlayer.volume = 0.1; // Low volume for silence (just in case)
+4720:                     activePlayer.play().catch(e => console.log("Silent restore failed", e));
+4721:                     // Remove listener to avoid loops
+4722:                     activePlayer.removeEventListener('ended', restoreSilent);
+4723:                 };
+4724: 
+4725:                 activePlayer.addEventListener('ended', restoreSilent);
+4726:                 activePlayer.loop = false;
+4727:             }
+4728: 
+4729:             // Play Logic with Retry
+4730:             const playWithFallback = (player, url, isRetry = false) => {
+4731:                 player.src = url;
+4732:                 player.volume = 1.0;
+4733:                 player.play().catch(e => {
+4734:                     console.log("Adhan play failed:", e);
+4735:                     if (!isRetry) {
+4736:                         console.log("Switching to backup Adhan...");
+4737:                         playWithFallback(player, 'https://www.islamcan.com/audio/adhan/azan2.mp3', true);
+4738:                     } else if (player === silentAudio) {
+4739:                         // If silent player failed (weird), try standard one as last resort
+4740:                         console.log("Silent player/Hijack failed, trying standard player...");
+4741:                         playWithFallback(standardPlayer, url, true);
+4742:                     }
+4743:                 });
+4744:             };
+4745: 
+4746:             playWithFallback(activePlayer, adhanSrc);
+4747: 
+4748:             if (Notification.permission === 'granted') {
+4749:                 try {
+4750:                     const notif = new Notification("حان وقت الصلاة", {
+4751:                         body: `حان الآن موعد صلاة ${prayerName}`,
+4752:                         icon: 'https://cdn-icons-png.flaticon.com/512/5146/5146011.png',
+4753:                         requireInteraction: true
+4754:                     });
+4755:                     notif.onclick = function () { window.focus(); notif.close(); };
+4756:                 } catch (e) { console.log(e); }
+4757:             }
+4758:         }
+4759: 
+4760:         function manualPlayAdhan() {
+4761:             const adhanAudio = document.getElementById('adhan-audio');
+4762:             let src = localStorage.getItem('adhan_voice') || 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+4763: 
+4764:             if (src === 'custom') {
+4765:                 src = localStorage.getItem('custom_adhan_data') || 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+4766:             }
+4767: 
+4768:             adhanAudio.src = src;
+4769:             adhanAudio.play()
+4770:                 .then(() => {
+4771:                     console.log("Manual Adhan playing");
+4772:                 })
+4773:                 .catch(e => {
+4774:                     alert("تعذر تشغيل الصوت. تأكد من تفعيل الصوت في المتصفح.");
+4775:                 });
+4776:         }
+4777: 
+4778:         // --- READ QURAN & AUDIO ---
+4779:         const recitersList = [
+4780:             { name: "مشاري العفاسي", url: "https://server8.mp3quran.net/afs/" },
+4781:             { name: "عبدالباسط عبدالصمد (مجود)", url: "https://server7.mp3quran.net/basit/" },
+4782:             { name: "عبدالباسط عبدالصمد (مرتل)", url: "https://server7.mp3quran.net/basit/Almusshaf-Al-Morttal/" },
+4783:             { name: "ماهر المعيقلي", url: "https://server12.mp3quran.net/maher/" },
+4784:             { name: "سعد الغامدي", url: "https://server7.mp3quran.net/s_gmd/" },
+4785:             { name: "أحمد العجمي", url: "https://server10.mp3quran.net/ajm/" },
+4786:             { name: "ياسر الدوسري", url: "https://server11.mp3quran.net/yasser/" },
+4787:             { name: "محمود خليل الحصري", url: "https://server13.mp3quran.net/husr/" },
+4788:             { name: "عبدالرحمن السديس", url: "https://server11.mp3quran.net/sds/" },
+4789:             { name: "سعود الشريم", url: "https://server7.mp3quran.net/shur/" },
+4790:             { name: "محمد صديق المنشاوي", url: "https://server10.mp3quran.net/minsh/" },
+4791:             { name: "فارس عباد", url: "https://server8.mp3quran.net/frs_a/" },
+4792:             { name: "إدريس أبكر", url: "https://server6.mp3quran.net/abkr/" },
+4793:             { name: "خالد الجليل", url: "https://server10.mp3quran.net/jleel/" },
+4794:             { name: "هزاع البلوشي", url: "https://server11.mp3quran.net/hazza/" },
+4795:             { name: "وديع اليمني", url: "https://server7.mp3quran.net/wadi/" }
+4796:         ];
+4797: 
+4798:         function initLists() {
+4799:             const rSelect = document.getElementById('surah-select-read');
+4800:             const aSelect = document.getElementById('surah-select-audio');
+4801:             const reciterSelect = document.getElementById('reciter-select');
+4802: 
+4803:             // Populate Surah Lists
+4804:             surahNames.forEach((n, i) => {
+4805:                 const meta = surahMeta[i] || { t: "--", a: "--" };
+4806:                 let opt = `<option value="${i + 1}">${i + 1}. سورة ${n} (${meta.t} - ${meta.a} آيات)</option>`;
+4807:                 rSelect.innerHTML += opt;
+4808:                 aSelect.innerHTML += opt;
+4809:             });
+4810: 
+4811:             // Populate Reciter List
+4812:             if (reciterSelect) {
+4813:                 reciterSelect.innerHTML = '';
+4814:                 recitersList.forEach(r => {
+4815:                     let opt = document.createElement('option');
+4816:                     opt.value = r.url;
+4817:                     opt.text = r.name;
+4818:                     reciterSelect.add(opt);
+4819:                 });
+4820: 
+4821:                 // Load saved reciter
+4822:                 const savedReciter = localStorage.getItem('audio_reciter');
+4823:                 if (savedReciter) {
+4824:                     reciterSelect.value = savedReciter;
+4825:                 }
+4826:             }
+4827: 
+4828:             // Load Last Viewed Surah OR Bookmark (استعادة آخر سورة)
+4829:             const lastViewed = localStorage.getItem('current_surah_view');
+4830:             const b = localStorage.getItem('bookmark');
+4831: 
+4832:             if (lastViewed) {
+4833:                 rSelect.value = lastViewed;
+4834:                 loadSurahText(lastViewed);
+4835:             } else if (b) {
+4836:                 try {
+4837:                     // Support new JSON format and old simple format
+4838:                     const data = JSON.parse(b);
+4839:                     if (typeof data === 'object') {
+4840:                         rSelect.value = data.surah;
+4841:                         loadSurahText(data.surah, data.ayah);
+4842:                     } else {
+4843:                         rSelect.value = b;
+4844:                         loadSurahText(b);
+4845:                     }
+4846:                 } catch (e) {
+4847:                     rSelect.value = b;
+4848:                     loadSurahText(b);
+4849:                 }
+4850:             }
+4851:         }
+4852: 
+4853:         async function loadSurahText(num, scrollToAyah = null) {
+4854:             document.getElementById('surah-select-read').style.display = 'block';
+4855:             document.getElementById('juz-title-read').style.display = 'none';
+4856:             App.currSurah = num;
+4857:             localStorage.setItem('current_surah_view', num); // Auto-save current surah
+4858:             App.selectedAyah = scrollToAyah; // Set selected ayah if provided
+4859:             const box = document.getElementById('quran-content');
+4860:             box.innerHTML = `<div class="flex-center" style="height:200px"><div class="spinner"></div></div>`;
+4861: 
+4862:             try {
+4863:                 // 1. Get Quran Text
+4864:                 let quranAyahs;
+4865:                 const cachedQuran = localStorage.getItem(`qtext_${num}`);
+4866:                 if (cachedQuran) {
+4867:                     quranAyahs = JSON.parse(cachedQuran);
+4868:                 } else {
+4869:                     const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}`);
+4870:                     const data = await res.json();
+4871:                     quranAyahs = data.data.ayahs;
+4872:                     try {
+4873:                         localStorage.setItem(`qtext_${num}`, JSON.stringify(quranAyahs));
+4874:                     } catch (e) { console.warn("Storage full, skipping cache"); }
+4875:                 }
+4876: 
+4877:                 // 2. Check Tafseer Mode
+4878:                 if (App.showTafseer) {
+4879:                     let tafseerAyahs;
+4880:                     const cachedTafseer = localStorage.getItem(`tafseer_${num}`);
+4881:                     if (cachedTafseer) {
+4882:                         tafseerAyahs = JSON.parse(cachedTafseer);
+4883:                     } else {
+4884:                         // Show loading specifically for tafseer if quran was cached but tafseer wasn't
+4885:                         if (cachedQuran) box.innerHTML = `<div class="flex-center" style="height:200px"><div class="spinner"></div><p style="margin-right:10px">جاري تحميل التفسير...</p></div>`;
+4886: 
+4887:                         const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}/ar.muyassar`);
+4888:                         const data = await res.json();
+4889:                         tafseerAyahs = data.data.ayahs;
+4890:                         try {
+4891:                             localStorage.setItem(`tafseer_${num}`, JSON.stringify(tafseerAyahs));
+4892:                         } catch (e) { console.warn("Storage full, skipping tafseer cache"); }
+4893:                     }
+4894:                     renderSurah(quranAyahs, num, tafseerAyahs, scrollToAyah);
+4895:                 } else {
+4896:                     renderSurah(quranAyahs, num, null, scrollToAyah);
+4897:                 }
+4898: 
+4899:             } catch (e) {
+4900:                 console.error(e);
+4901:                 box.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sec);">
+4902:                     <i class="fas fa-wifi-slash" style="font-size:2rem; color:var(--accent); margin-bottom:10px;"></i>
+4903:                     <p>لا يوجد اتصال بالإنترنت</p>
+4904:                     <p style="font-size:0.8rem">لم يتم حفظ هذه السورة مسبقاً. يرجى فتحها مرة واحدة أثناء الاتصال بالإنترنت لحفظها.</p>
+4905:                     <button class="secondary" style="width:auto; margin-top:10px;" onclick="loadSurahText(${num})">إعادة المحاولة</button>
+4906:                 </div>`;
+4907:             }
+4908:         }
+4909: 
+4910:         function renderSurah(ayahs, num, tafseer = null, scrollToAyah = null) {
+4911:             const box = document.getElementById('quran-content');
+4912: 
+4913:             // Apply new mushaf text class
+4914:             box.className = 'mushaf-text';
+4915: 
+4916:             // Restore saved font size
+4917:             const savedSize = localStorage.getItem('quran_font_size');
+4918:             if (savedSize) box.style.fontSize = savedSize + 'rem';
+4919: 
+4920:             // Update surah header
+4921:             const header = document.getElementById('surah-info-premium');
+4922:             const titleText = document.getElementById('surah-title-text');
+4923:             const metaText = document.getElementById('surah-meta-text');
+4924:             if (header && titleText) {
+4925:                 header.style.display = 'block';
+4926:                 const meta = surahMeta[num - 1] || { t: '', a: '' };
+4927:                 const sType = meta.t === 'مكية' || meta.t === 'مدنية' ? meta.t : (meta.t === 'Meccan' ? 'مكية' : 'مدنية');
+4928:                 titleText.textContent = `سورة ${surahNames[num - 1] || ''}`;
+4929:                 if (metaText) metaText.textContent = `${sType} ● ${ayahs.length} آية`;
+4930:             }
+4931: 
+4932:             // --- Tafseer Mode ---
+4933:             if (tafseer) {
+4934:                 let html = `<div style="padding-bottom:15px;">`;
+4935:                 ayahs.forEach((a, index) => {
+4936:                     const tafseerText = tafseer[index] ? tafseer[index].text : '...';
+4937:                     const isSelected = scrollToAyah == a.numberInSurah ? 'selected-ayah' : '';
+4938:                     const vNum = a.numberInSurah.toLocaleString('ar-EG');
+4939:                     html += `
+4940:                         <div class="tafseer-box ${isSelected}" id="ayah-${a.numberInSurah}" data-ayah="${encodeURIComponent(a.text)}" ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))">
+4941:                             <div class="tafseer-ayah">${a.text} <span class="verse-num">${vNum}</span></div>
+4942:                             <div class="tafseer-text">
+4943:                                 <i class="fas fa-book-open" style="color:#c9a84c; margin-left:5px; font-size:0.8rem;"></i>
+4944:                                 ${tafseerText}
+4945:                             </div>
+4946:                         </div>`;
+4947:                 });
+4948:                 box.innerHTML = html + `</div>`;
+4949:                 if (scrollToAyah) {
+4950:                     setTimeout(() => {
+4951:                         const el = document.getElementById(`ayah-${scrollToAyah}`);
+4952:                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+4953:                     }, 300);
+4954:                 }
+4955:                 return;
+4956:             }
+4957: 
+4958:             // --- Normal Mode (New Mushaf Design) ---
+4959:             let html = '';
+4960: 
+4961:             // Basmala
+4962:             if (num != 1 && num != 9) {
+4963:                 html += `<div class="mushaf-basmala"><div class="mushaf-basmala-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div></div>`;
+4964:             }
+4965: 
+4966:             // Render Ayahs as flowing inline text with circle verse numbers
+4967:             let textHtml = '';
+4968:             ayahs.forEach((a, index) => {
+4969:                 let text = a.text;
+4970:                 if (index === 0 && num != 1 && num != 9) {
+4971:                     text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
+4972:                     text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
+4973:                 }
+4974:                 const isSelected = scrollToAyah == a.numberInSurah ? 'selected-ayah' : '';
+4975:                 const vNum = a.numberInSurah.toLocaleString('ar-EG');
+4976:                 textHtml += `<span class="ayah-span ${isSelected}" id="ayah-${a.numberInSurah}" data-ayah="${encodeURIComponent(a.text)}" ondblclick="showAyahOptions(${num}, ${a.numberInSurah}, this.getAttribute('data-ayah'))" style="cursor:pointer;">${text}<span class="verse-num">${vNum}</span>‌ </span>`;
+4977:             });
+4978: 
+4979:             box.innerHTML = html + textHtml;
+4980: 
+4981:             // Bookmark highlight
+4982:             const bmk = JSON.parse(localStorage.getItem('bookmark'));
+4983:             if (bmk && bmk.surah == num) {
+4984:                 const el = document.getElementById(`ayah-${bmk.ayah}`);
+4985:                 if (el) { el.style.background = 'rgba(201,168,76,0.12)'; el.style.borderRadius = '6px'; }
+4986:             }
+4987: 
+4988:             // Scroll to ayah
+4989:             if (scrollToAyah) {
+4990:                 setTimeout(() => {
+4991:                     const el = document.getElementById(`ayah-${scrollToAyah}`);
+4992:                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+4993:                 }, 300);
+4994:             }
+4995:         }
+4996: 
+4997:         function handleAyahClick(ayahNum) {
+4998:             // Remove previous selection
+4999:             document.querySelectorAll('.selected-ayah').forEach(el => el.classList.remove('selected-ayah'));
+5000: 
+5001:             // Add new selection
+5002:             const el = document.getElementById(`ayah-${ayahNum}`);
+5003:             if (el) el.classList.add('selected-ayah');
+5004: 
+5005:             App.selectedAyah = ayahNum;
+5006:         }
+5007: 
+5008:         function toggleTafseer() {
+5009:             App.showTafseer = !App.showTafseer;
+5010:             const btn = document.getElementById('btn-tafseer');
+5011: 
+5012:             if (App.showTafseer) {
+5013:                 btn.style.background = 'var(--primary)';
+5014:                 btn.style.color = '#fff';
+5015:             } else {
+5016:                 btn.style.background = 'rgba(255,255,255,0.1)';
+5017:                 btn.style.color = 'var(--text-main)';
+5018:             }
+5019:             loadSurahText(document.getElementById('surah-select-read').value, App.selectedAyah);
+5020:         }
+5021: 
+5022:         function changeSurahRead(d) {
+5023:             let s = document.getElementById('surah-select-read');
+5024:             let n = parseInt(s.value) + d;
+5025:             if (n >= 1 && n <= 114) { s.value = n; loadSurahText(n); }
+5026:         }
+5027: 
+5028:         function toggleReadingMode() {
+5029:             document.body.classList.toggle('reading-mode');
+5030:             const btn = document.getElementById('btn-exit-reading');
+5031:             if (document.body.classList.contains('reading-mode')) {
+5032:                 btn.style.display = 'block';
+5033:                 if (navigator.vibrate) navigator.vibrate(50);
+5034:             } else {
+5035:                 btn.style.display = 'none';
+5036:             }
+5037:         }
+5038: 
+5039:         function saveBookmark(sId = null, aId = null) {
+5040:             const surahId = sId || document.getElementById('surah-select-read').value;
+5041:             let ayahId = aId || App.selectedAyah;
+5042: 
+5043:             // Auto-detect visible ayah if none selected and not provided
+5044:             if (!ayahId) {
+5045:                 const elements = document.querySelectorAll('[id^="ayah-"]');
+5046:                 for (let el of elements) {
+5047:                     const rect = el.getBoundingClientRect();
+5048:                     if (rect.top >= 80 && rect.top < window.innerHeight) {
+5049:                         ayahId = parseInt(el.id.replace('ayah-', ''));
+5050:                         break;
+5051:                     }
+5052:                 }
+5053:                 if (!ayahId && elements.length > 0) ayahId = 1;
+5054:             }
+5055: 
+5056:             // Visual Update immediately
+5057:             handleAyahClick(ayahId);
+5058: 
+5059:             const bookmarkData = { surah: surahId, ayah: ayahId || 1 };
+5060:             localStorage.setItem('bookmark', JSON.stringify(bookmarkData));
+5061: 
+5062:             // Add to history
+5063:             let history = JSON.parse(localStorage.getItem('bookmark_history')) || [];
+5064:             history = history.filter(h => !(h.id == surahId && h.ayah == ayahId));
+5065:             history.unshift({
+5066:                 id: surahId,
+5067:                 ayah: ayahId || 1,
+5068:                 name: surahNames[surahId - 1],
+5069:                 date: new Date().toLocaleDateString('ar-EG')
+5070:             });
+5071:             if (history.length > 10) history.pop();
+5072:             localStorage.setItem('bookmark_history', JSON.stringify(history));
+5073: 
+5074:             // Custom Toast Notification instead of Alert
+5075:             showToast(`تم حفظ العلامة عند الآية ${ayahId || 1}`);
+5076:             renderBookmarkHistory();
+5077: 
+5078:             // Update visual bookmark icon
+5079:             document.querySelectorAll('.bookmark-indicator').forEach(el => el.remove());
+5080:             const ayahSpan = document.getElementById(`ayah-${ayahId}`);
+5081:             if (ayahSpan) {
+5082:                 ayahSpan.innerHTML += `<i class="fas fa-bookmark bookmark-indicator" style="color:var(--primary); margin:0 5px; font-size:0.8rem; vertical-align:middle;"></i>`;
+5083:             }
+5084:         }
+5085: 
+5086:         function showToast(msg) {
+5087:             const div = document.createElement('div');
+5088:             div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#fff; padding:10px 20px; border-radius:20px; font-size:0.9rem; z-index:5000; animation:fadeIn 0.3s; border:1px solid var(--primary);";
+5089:             div.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary); margin-left:5px;"></i> ${msg}`;
+5090:             document.body.appendChild(div);
+5091:             setTimeout(() => {
+5092:                 div.style.opacity = '0';
+5093:                 setTimeout(() => div.remove(), 300);
+5094:             }, 2000);
+5095:         }
+5096: 
+5097:         // --- AUDIO PLAYER (ADVANCED) ---
+5098:         function updatePlayerSource(autoplay = false) {
+5099:             enhancedUpdatePlayerSource(autoplay);
+5100:         }
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+==================================================
