@@ -4892,7 +4892,7 @@ function showLevelCongratulation(levelTitle, levelIcon) {
                 border: 2px double var(--primary);
                 padding: 25px 15px;
                 border-radius: 15px;
-                background: rgba(255,215,0,0.02);
+                background: #0d131f;
                 position: relative;
             ">
                 <div style="position:absolute; top:10px; right:10px; font-size:1.2rem; opacity:0.3;">🌙</div>
@@ -4914,24 +4914,95 @@ function showLevelCongratulation(levelTitle, levelIcon) {
                     "وَفِي ذَٰلِكَ فَلْيَتَنَافَسِ الْمُتَنَافِسُونَ"
                 </p>
 
-                <div style="font-size:0.7rem; color:var(--text-sec); margin-bottom:15px;">يمكنك تصوير الشاشة (Screenshot) للاحتفاظ بالشهادة والافتخار بها 📸</div>
+                <div style="font-size:0.7rem; color:var(--text-sec); margin-bottom:15px;">يمكنك حفظ الشهادة مباشرة كصورة أو تصوير الشاشة (Screenshot) الاحتفاظ بها 📸</div>
+
+                <button id="download-congrat-btn" style="
+                    background: var(--primary); 
+                    color: #000; 
+                    border: none; 
+                    padding: 11px 30px; 
+                    border-radius: 10px; 
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                    font-size: 0.95rem;
+                    font-weight: bold;
+                    transition: 0.2s;
+                    width: 100%;
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                "><i class="fas fa-download"></i> حفظ الشهادة على الجهاز</button>
 
                 <button id="close-congrat-btn" style="
                     background: rgba(255,255,255,0.08); 
                     color: #fff; 
                     border: 1px solid rgba(255,255,255,0.15); 
-                    padding: 8px 30px; 
-                    border-radius: 8px; 
+                    padding: 10px 30px; 
+                    border-radius: 10px; 
                     cursor: pointer;
                     font-family: 'Cairo', sans-serif;
                     font-size: 0.9rem;
                     transition: 0.2s;
+                    width: 100%;
                 " onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">إغلاق الشهادة</button>
             </div>
         `;
 
         cardContainer.querySelector('#close-congrat-btn').onclick = () => {
             modal.remove();
+        };
+
+        cardContainer.querySelector('#download-congrat-btn').onclick = async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري توليد الصورة...';
+
+            if (typeof html2canvas === 'undefined') {
+                showToast("⚠️ ميزة الحفظ تحتاج اتصالاً بالإنترنت لتحميل ملف المكتبة. يرجى تصوير الشاشة مؤقتاً 📸", 5000);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            try {
+                const targetArea = cardContainer.firstElementChild;
+                
+                // Hide buttons during capture to prevent them showing on certificate image
+                const downloadBtn = cardContainer.querySelector('#download-congrat-btn');
+                const closeBtn = cardContainer.querySelector('#close-congrat-btn');
+                const originalDisplayD = downloadBtn.style.display;
+                const originalDisplayC = closeBtn.style.display;
+                
+                downloadBtn.style.display = 'none';
+                closeBtn.style.display = 'none';
+
+                const canvas = await html2canvas(targetArea, {
+                    backgroundColor: '#0d131f',
+                    scale: 2, // higher resolution
+                    useCORS: true
+                });
+
+                // Restore buttons
+                downloadBtn.style.display = originalDisplayD;
+                closeBtn.style.display = originalDisplayC;
+
+                // Download trigger
+                const link = document.createElement('a');
+                link.download = `شهادة_النور_${userName.replace(/\s/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                showToast('✅ تم حفظ شهادتك بنجاح! 🎉');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ تعذر حفظ الشهادة كصورة');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         };
     };
 }
@@ -5503,6 +5574,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initFirebaseNotifications, 2500);
 });
 
+// منع القائمة المنسدلة (Right Click) ومنع نسخ النصوص لحماية المحتوى
+document.addEventListener('contextmenu', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+        return;
+    }
+    e.preventDefault();
+});
+document.addEventListener('dragstart', e => {
+    e.preventDefault();
+});
+
 // Hide Loader on load
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
@@ -5513,6 +5595,55 @@ window.addEventListener('load', () => {
         }, 500);
     }
 });
+
+// مشاركة التطبيق
+function shareApp() {
+    const url = 'https://ehabamr062-ux.github.io/Quran/';
+    const shareText = `تطبيق النور الشامل: رفيقك الروحاني لقراءة القرآن الكريم واستماعه بصوت كبار القراء، ومتابعة الأذكار ومواقيت الصلاة اليومية بدقة.\n\nافتح التطبيق الآن وجربه مباشرة:\n${url}`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'تطبيق النور الشامل',
+            text: shareText
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            showToast('تم نسخ رابط مشاركة التطبيق للحافظة! 🔗');
+        }).catch(() => {
+            alert(shareText);
+        });
+    }
+}
+
+// نسخ الآية اليومية
+function copyDailyVerse() {
+    const text = document.getElementById('daily-verse-text-home')?.innerText;
+    const ref = document.getElementById('daily-verse-ref-home')?.innerText;
+    if (!text) return;
+    const fullText = `﴿ ${text} ﴾\n[${ref}]\n\nتم النسخ من تطبيق النور`;
+    navigator.clipboard.writeText(fullText).then(() => {
+        showToast('تم نسخ الآية الكريمة للحافظة 📋');
+    }).catch(() => {
+        showToast('فشل نسخ الآية');
+    });
+}
+
+// مشاركة الآية اليومية
+function shareDailyVerse() {
+    const text = document.getElementById('daily-verse-text-home')?.innerText;
+    const ref = document.getElementById('daily-verse-ref-home')?.innerText;
+    if (!text) return;
+    const shareText = `﴿ ${text} ﴾\n[${ref}]\n\nتمت المشاركة من تطبيق النور`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'آية من الذكر الحكيم',
+            text: shareText
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            showToast('تم نسخ الآية لمشاركتها 🔗');
+        });
+    }
+}
 
 
 
