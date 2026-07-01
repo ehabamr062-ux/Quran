@@ -1,0 +1,43 @@
+{
+  "name": "quran-app",
+  "version": "3.0.0",
+  "description": "تطبيق القرآن الكريم",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --windows"
+  },
+  "keywords": [],
+  "author": "Ehab Amr",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ehabamr.quran",
+    "productName": "QuranApp",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "app_icon_1782665380376.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "QuranApp"
+    },
+    "files": [
+      "**/*",
+      "!dist",
+      "!node_modules/electron",
+      "!node_modules/electron-builder"
+    ]
+  }
+}
